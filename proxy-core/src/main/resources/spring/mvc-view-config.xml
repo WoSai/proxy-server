@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xsi:schemaLocation="http://www.springframework.org/schema/oxm
+			   http://www.springframework.org/schema/oxm/spring-oxm.xsd
+			   http://www.springframework.org/schema/beans
+			   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+    
+    <property name="viewResolvers">
+      <list>
+        <!-- Default viewClass: JSTL view (JSP with html output) -->
+    	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	    <!-- Example: a logical view name of 'store' is mapped to '/WEB-INF/jsp/store.jsp' -->
+	       <property name="prefix" value="/WEB-INF/jsp/"/>
+	       <property name="suffix" value=".jsp"/>
+	    </bean>
+	
+    	<!-- Used here for 'xls' views  -->
+	    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+      </list>
+    </property>
+    
+    <property name="defaultViews">
+      <list>
+        <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+      </list>
+    </property>
+
+    <property name="favorPathExtension" value="true"/>
+    <property name="ignoreAcceptHeader" value="false"/>
+
+    <property name="defaultContentType" value="application/json"/>
+    
+    <property name="mediaTypes">
+      <map>
+        <entry key="html" value="text/html" />
+        <entry key="xml" value="application/xml" />
+        <entry key="atom" value="application/atom+xml" />
+        <entry key="xls" value="application/vnd.ms-excel" />
+      </map>
+    </property>
+
+  </bean>
+  
+</beans>

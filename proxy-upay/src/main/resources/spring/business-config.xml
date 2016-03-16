@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Data and Service layers
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			   http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+			   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+			   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:property-placeholder location="classpath:spring/flavor-${upay.flavor:default}.properties"/>
+
+  <!-- 辅助类型 -->
+  <bean class="com.wosai.upay.helper.UpayMethodValidationPostProcessor"></bean>
+  <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+  <bean class="com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceExporter">
+  	<property name="exceptionLogLevel" value="FINEST" />
+  </bean>
+
+  <!-- 访问远程vendor api -->
+  <import resource="ssl-config.xml"/>
+  <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+  <bean class="org.springframework.web.client.RestTemplate">
+  	<property name="requestFactory" ref="requestFactory"/>
+  </bean>
+  <bean class="com.wosai.upay.httpclient.UpayHttpClient"/>
+  <bean class="com.wosai.upay.proxy.service.VendorApiFacade"
+  		p:vendorApiUrl="${vendor.api.url}"
+  		p:vendorSn="${vendor.sn}"
+  		p:vendorKey="${vendor.key}"/>
+
+  <!-- 自动扫描业务逻辑包加载其它业务模块 -->
+  <context:component-scan
+      base-package="com.wosai.upay.proxy.service"/>
+
+
+</beans>

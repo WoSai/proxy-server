@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+MVC controllers, http converters, ...
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <import resource="mvc-view-config.xml"/>
+
+    <context:component-scan
+            base-package="com.wosai.upay.proxy.controller"/>
+
+
+    <!-- Use Java class based configuration. -->
+    <bean class="com.wosai.upay.proxy.config.WebConfig" />
+
+    <mvc:view-controller path="/" view-name="documentation" />
+
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean"></bean>
+
+</beans>

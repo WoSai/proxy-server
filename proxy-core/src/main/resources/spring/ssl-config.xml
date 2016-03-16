@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Data and Service layers
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <bean id="sslContext" class="com.wosai.upay.util.WebUtil" factory-method="getAllowAllCertsSSLContext"/>
+  <bean id="hostnameVerifier" class="com.wosai.upay.util.WebUtil" factory-method="getAllowAllHostnameVerifier"/>
+  <bean id="requestFactory" class="com.wosai.upay.httpclient.SslClientHttpRequestFactory">
+  	<property name="sslContext" ref="sslContext" />
+  	<property name="hostNameVerifier" ref="hostnameVerifier" />
+  </bean>
+
+</beans>
