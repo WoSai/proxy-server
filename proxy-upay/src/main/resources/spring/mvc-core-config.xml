@@ -17,7 +17,7 @@ MVC controllers, http converters, ...
     <import resource="mvc-view-config.xml"/>
 
     <context:component-scan
-            base-package="com.wosai.upay.proxy.controller"/>
+            base-package="com.wosai.upay.proxy.upay.controller"/>
 
 
     <!-- Use Java class based configuration. -->
