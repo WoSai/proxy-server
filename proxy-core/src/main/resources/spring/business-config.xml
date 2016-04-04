@@ -27,9 +27,16 @@ Data and Service layers
   </bean>
   <bean class="com.wosai.upay.httpclient.UpayHttpClient"/>
   <bean class="com.wosai.upay.proxy.core.service.VendorApiFacade"
-  		p:vendorApiUrl="${vendor.api.url}"
+  		p:vendorApiDomain="${vendor.api.domain}"
   		p:vendorSn="${vendor.sn}"
-  		p:vendorKey="${vendor.key}"/>
+  		p:vendorKey="${vendor.key}"
+  		p:createStoreApiUrl="${vendor.api.store.create.url}"
+  		p:updateStoreApiUrl="${vendor.api.store.update.url}"
+  		p:getStoreApiUrl="${vendor.api.store.get.url}"
+  		p:createTerminalApiUrl="${vendor.api.terminal.create.url}"
+  		p:updateTerminalApiUrl="${vendor.api.terminal.update.url}"
+  		p:getTerminalApiUrl="${vendor.api.terminal.get.url}"
+  		/>
 
   <!-- 自动扫描业务逻辑包加载其它业务模块 -->
   <context:component-scan

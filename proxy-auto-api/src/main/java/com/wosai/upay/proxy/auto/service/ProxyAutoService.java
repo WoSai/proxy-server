@@ -13,11 +13,11 @@ public interface ProxyAutoService {
     Map<String, Object> refund(Map<String, Object> request) throws ProxyAutoException;
     Map<String, Object> revoke(Map<String, Object> request) throws ProxyAutoException;
 
-    String createStore(Map<String, Object> request) throws ProxyAutoException;
+    Map<String, Object> createStore(Map<String, Object> request) throws ProxyAutoException;
     void updateStore(Map<String, Object> request)  throws ProxyAutoException;
-    Map<String, String> getStore(String sn) throws ProxyAutoException;
+    Map<String, Object> getStore(String sn) throws ProxyAutoException;
 
-    String createTerminal(Map<String, Object> request) throws ProxyAutoException;
+    Map<String, Object> createTerminal(Map<String, Object> request) throws ProxyAutoException;
     void updateTerminal(Map<String, Object> request) throws ProxyAutoException;
-    Map<String, String> getTerminal(String sn) throws ProxyAutoException;
+    Map<String, Object> getTerminal(String sn) throws ProxyAutoException;
 }

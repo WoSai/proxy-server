@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,19 +28,19 @@ public class ProxyUpayController {
 
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> pay(Map<String, Object> params) {
+    public Map<String, Object> pay(@RequestBody Map<String, Object> params) {
         return success(proxyService.pay(params));
     }
 
     @RequestMapping(value="/precreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> preceate(Map<String, Object> params) {
+    public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
         return success(proxyService.precreate(params));
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> query(Map<String, Object> params) {
+    public Map<String, Object> query(@RequestBody Map<String, Object> params) {
         return success(proxyService.query(params));
     }
 

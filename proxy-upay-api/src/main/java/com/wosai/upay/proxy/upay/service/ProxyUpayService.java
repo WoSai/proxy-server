@@ -14,4 +14,6 @@ public interface ProxyUpayService {
     Map<String, Object> query(Map<String, Object> request) throws ProxyUpayException;
     Map<String, Object> refund(Map<String, Object> request) throws ProxyUpayException;
     Map<String, Object> revoke(Map<String, Object> request) throws ProxyUpayException;
+	Map<String, Object> cancel(Map<String, Object> request)
+			throws ProxyUpayException;
 }

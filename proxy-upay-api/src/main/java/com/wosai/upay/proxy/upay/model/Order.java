@@ -21,5 +21,12 @@ public abstract class Order {
     public static final String DEVICE_ID = "device_id";
     public static final String PAYER_UID = "payer_uid";
     public static final String NOTIFY_URL = "notify_url";
+    
+    
+    //订单状态
+    public static final String ORDER_STATUS = "order_status";
+    public static final String ORDER_STATUS_CREATED = "CREATED"; 
+    public static final String ORDER_STATUS_PAID = "PAID"; 
+    public static final String ORDER_STATUS_PAY_CANCELED = "PAY_CANCELED"; 
 
 }

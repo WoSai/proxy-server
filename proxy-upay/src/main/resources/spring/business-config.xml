@@ -21,14 +21,22 @@ Data and Service layers
 
   <!-- 远程访问支付网关api -->
   <import resource="ssl-config.xml"/>
-  <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+  <bean class="com.fasterxml.jackson.databind.ObjectMapper"/> 
   <bean class="org.springframework.web.client.RestTemplate">
   	<property name="requestFactory" ref="requestFactory"/>
   </bean>
   <bean class="com.wosai.upay.httpclient.UpayHttpClient"/>
-  <bean class="com.wosai.upay.proxy.upay.service.UpayApiFacade" p:upayApiUrl="${upay.api.url}"/>
+  <bean class="com.wosai.upay.proxy.upay.service.UpayApiFacade"
+   p:upayApiDomain="${upay.api.domain}"
+   p:payApiUrl="${upay.api.pay.url}"
+   p:refundApiUrl="${upay.api.refund.url}"
+   p:queryApiUrl="${upay.api.query.url}"
+   p:cancelApiUrl="${upay.api.cancel.url}"
+   p:revokeApiUrl="${upay.api.revoke.url}"
+   p:precreateApiUrl="${upay.api.precreate.url}"
+   />
 
-  <!-- JDBC -->
+  <!-- JDBC -->                     
   <import resource="jdbc-config.xml"/>
   <bean class="com.wosai.upay.proxy.upay.service.TerminalKeyStore">
   	<property name="terminalKeyDao" ref="terminalKeyDao"/>

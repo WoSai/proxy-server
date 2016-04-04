@@ -12,6 +12,8 @@ Data and Service layers
   <bean id="requestFactory" class="com.wosai.upay.httpclient.SslClientHttpRequestFactory">
   	<property name="sslContext" ref="sslContext" />
   	<property name="hostNameVerifier" ref="hostnameVerifier" />
+  	<property name="readTimeout" value="30000"/>  
+    <property name="connectTimeout" value="5000"/>
   </bean>
 
 </beans>

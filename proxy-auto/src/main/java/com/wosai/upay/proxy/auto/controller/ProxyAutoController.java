@@ -24,7 +24,7 @@ public class ProxyAutoController {
     private static final Logger logger = LoggerFactory.getLogger(ProxyAutoController.class); 
 
     @Autowired
-    private ProxyAutoService proxyService;
+    private ProxyAutoService proxyService; 
 
     // 门店和终端管理
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")

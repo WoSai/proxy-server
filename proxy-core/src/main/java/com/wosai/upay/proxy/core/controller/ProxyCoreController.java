@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,7 +29,7 @@ public class ProxyCoreController {
 
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> createStore(Map<String, Object> params) {
+    public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
         return success(proxyService.createStore(params));
     }
 
@@ -36,6 +38,32 @@ public class ProxyCoreController {
     public Map<String, Object> updateStore(Map<String, Object> params) {
         proxyService.updateStore(params);
         return success();
+    }
+
+    @RequestMapping(value="/store/get/{sn}", method=RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getStore(@PathVariable String sn) {
+        return success(proxyService.getStore(sn));
+    }
+
+    @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> createTerminal(Map<String, Object> params) {
+        proxyService.createTerminal(params);
+        return success();
+    }
+
+    @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> updateTerminal(Map<String, Object> params) {
+        proxyService.updateTerminal(params);
+        return success();
+    }
+
+    @RequestMapping(value="/terminal/get/{sn}", method=RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getTerminal(@PathVariable String sn) {
+        return success(proxyService.getTerminal(sn));
     }
 
     @SuppressWarnings("unchecked")
