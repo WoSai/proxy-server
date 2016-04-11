@@ -2,17 +2,21 @@ package com.wosai.upay.proxy.auto.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wosai.data.dao.common.TimedDaoBase;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
-import com.wosai.upay.proxy.auto.model.ClientStore;
-import com.wosai.upay.proxy.auto.model.ClientTerminal;
+import com.wosai.upay.proxy.auto.model.ClientOrder;
+import com.wosai.upay.proxy.auto.model.ClientOrderCancel;
+import com.wosai.upay.proxy.auto.model.ClientOrderPay;
+import com.wosai.upay.proxy.auto.model.ClientOrderPrecreate;
+import com.wosai.upay.proxy.auto.model.ClientOrderQuery;
+import com.wosai.upay.proxy.auto.model.ClientOrderRefund;
+import com.wosai.upay.proxy.auto.model.ClientOrderRevoke;
+import com.wosai.upay.proxy.auto.model.ClientOrderStore;
+import com.wosai.upay.proxy.auto.model.ClientOrderTerminal;
+import com.wosai.upay.proxy.auto.service.ProxyObjectMap.Advice;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
@@ -27,111 +31,226 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     private ProxyCoreService proxyCore;
     @Autowired
     private ProxyObjectMap theMap;
-    
-    @Resource(name="storeMapDao")
-    private TimedDaoBase storeMapDao;
-    
-    @Resource(name="terminalMapDao")
-    private TimedDaoBase terminalMapDao;
-    
-    @Autowired
-    private ProxyCoreService proxyCoreService;
 
     @Override
     public Map<String, Object> pay(Map<String, Object> request)
             throws ProxyAutoException {
-
-        // TODO Auto-generated method stub
-        return null;
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderPay[] values=ClientOrderPay.values();
+    	for(ClientOrderPay value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+        return proxyUpay.pay(param);
     }
     @Override
     public Map<String, Object> precreate(Map<String, Object> request)
             throws ProxyAutoException {
-        // TODO Auto-generated method stub
-        return null;
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderPrecreate[] values=ClientOrderPrecreate.values();
+    	for(ClientOrderPrecreate value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+    	return proxyUpay.precreate(param);
     }
     @Override
     public Map<String, Object> query(Map<String, Object> request)
             throws ProxyAutoException {
-        // TODO Auto-generated method stub
-        return null;
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderQuery[] values=ClientOrderQuery.values();
+    	for(ClientOrderQuery value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+    	return proxyUpay.query(param);
     }
     @Override
     public Map<String, Object> refund(Map<String, Object> request)
             throws ProxyAutoException {
-        // TODO Auto-generated method stub
-        return null;
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderRefund[] values=ClientOrderRefund.values();
+    	for(ClientOrderRefund value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+    	return proxyUpay.refund(request);
     }
     @Override
     public Map<String, Object> revoke(Map<String, Object> request)
             throws ProxyAutoException {
-        // TODO Auto-generated method stub
-        return null;
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderRevoke[] values=ClientOrderRevoke.values();
+    	for(ClientOrderRevoke value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+    	return proxyUpay.revoke(request);
+    }
+    @Override
+    public Map<String, Object> cancel(Map<String, Object> request)
+            throws ProxyAutoException {
+    	//检查本地映射
+    	this.checkObjectMap(request);
+    	//参数过滤，过滤多余的参数
+    	Map<String,Object> param=new HashMap<String,Object>();
+    	ClientOrderCancel[] values=ClientOrderCancel.values();
+    	for(ClientOrderCancel value:values){
+    		this.transferMap(request, param, value.getValue(), value.getMap());
+    	}
+    	return proxyUpay.cancel(request);
     }
     @Override
     public Map<String, Object> createStore(Map<String, Object> request)
             throws ProxyAutoException {
 		
     	//服务端入库
-    	Map<String, Object> store=proxyCoreService.createStore(request);
-    	
-		//本地入库
-    	Map<String,Object> model=new HashMap();
-    	model.put(ClientStore.ID, UUID.randomUUID().toString());
-    	model.put(ClientStore.CLIENT_MERCHANT_SN, request.get(Store.MERCHANT_ID));
-    	model.put(ClientStore.CLIENT_STORE_SN, request.get(Store.CLIENT_SN));
-    	model.put(ClientStore.NAME, request.get(Store.NAME));
-    	storeMapDao.save(model);
-    	
-        return store;
+        return proxyCore.createStore(request);
     }
     @Override
     public void updateStore(Map<String, Object> request)
             throws ProxyAutoException {
     	//服务端入库
-    	proxyCoreService.updateStore(request);
-    	
-		//本地入库
-    	Map<String,Object> model=new HashMap();
-    	model.put(ClientStore.ID, request.get(ClientStore.ID));
-    	model.put(ClientStore.CLIENT_MERCHANT_SN, request.get(Store.MERCHANT_ID));
-    	model.put(ClientStore.CLIENT_STORE_SN, request.get(Store.CLIENT_SN));
-    	model.put(ClientStore.NAME, request.get(Store.NAME));
-    	storeMapDao.updatePart(model);
+    	proxyCore.updateStore(request);
         
     }
     @Override
     public Map<String, Object> getStore(String sn) throws ProxyAutoException {
-        return proxyCoreService.getStore(sn);
+        return proxyCore.getStore(sn);
     }
     @Override
     public Map<String, Object> createTerminal(Map<String, Object> request)
             throws ProxyAutoException {
     	
     	//服务端入库
-    	Map<String, Object> terminal=proxyCoreService.createTerminal(request);
-    	
-		//本地入库
-    	Map<String,Object> model=new HashMap();
-    	model.put(ClientTerminal.ID, UUID.randomUUID().toString());
-    	model.put(ClientTerminal.NAME, request.get(Terminal.NAME));
-    	model.put(ClientTerminal.CLIENT_MERCHANT_SN, request.get(ClientTerminal.CLIENT_MERCHANT_SN));
-    	model.put(ClientTerminal.CLIENT_STORE_SN, request.get(Terminal.STORE_SN));
-    	model.put(ClientTerminal.CLIENT_TERMINAL_SN, request.get(Terminal.CLIENT_SN));
-    	terminalMapDao.save(model);
-    	
-        return terminal;
+        return proxyCore.createTerminal(request);
         
     }
     @Override
     public void updateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
-        proxyCoreService.updateTerminal(request);
+        proxyCore.updateTerminal(request);
+    }
+    @Override
+    public Map<String, Object> activateTerminal(Map<String, Object> request)
+            throws ProxyAutoException {
+    	
+    	//服务端入库
+        return proxyCore.activateTerminal(request);
+        
     }
     @Override
     public Map<String, Object> getTerminal(String sn) throws ProxyAutoException {
-        return proxyCoreService.getTerminal(sn);
+        return proxyCore.getTerminal(sn);
     }
 
+    
+    /**
+     * 检查本地映射，并做相关数据同步
+     * @param request
+     */
+    @SuppressWarnings("unchecked")
+    public void checkObjectMap(Map<String,Object> request){
+		//获取交易参数中的门店和终端信息
+		Map<String,Object> clientTerminal=(Map<String, Object>)request.get(ClientOrder.CLIENT_TERMINAL);
+		Map<String,Object> clientStore=(Map<String, Object>)request.get(ClientOrder.CLIENT_STORE);
+    	String clientStoreSn=clientStore.get(ClientOrderStore.CLIENT_SN.toString()).toString();
+    	String clientTerminalSn=clientTerminal.get(ClientOrderTerminal.CLIENT_SN.toString()).toString();
+    	String clientMerchantSn=null,storeSn=null,terminalSn=null;
+    	
+    	//转成服务端接口所需参数
+		Map<String,Object> terminal=this.parseTerminalAutoToCore(clientTerminal);
+		Map<String,Object> store=this.parseTerminalAutoToCore(clientStore);
+    	//本地映射校验
+    	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
+    	switch (advice) {
+		case CREATE_TERMINAL:
+			Map<String,Object> response=this.createTerminal(terminal);
+			//获取返回结果的终端标识
+			terminalSn=response.get(Terminal.SN).toString();
+			break;
+		case MOVE_TERMINAL:
+			//获取服务端的sn码
+			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			terminal.put(ClientOrderTerminal.SN.toString(), terminalSn);
+			//根据服务端的sn码，修改服务端的终端信息
+			this.updateTerminal(terminal);
+			break;
+		case CREATE_STORE_AND_TERMINAL:
+			//调用服务端门店创建接口，并获取返回结果的门店标识
+			response=this.createStore(store);
+			storeSn=response.get(Store.SN).toString();
+			
+			//调用服务端创建终端接口，并获取返回结果的终端标识
+			response=this.createTerminal(terminal);
+			terminalSn=response.get(Terminal.SN).toString();
+			break;
+		case CREATE_STORE_AND_MOVE_TERMINAL:
+			//调用服务端门店创建接口，并获取返回结果的门店标识
+			response=this.createStore(store);
+			storeSn=response.get(Store.SN).toString();
+			
+			//获取服务端的sn码
+			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			terminal.put(ClientOrderTerminal.SN.toString(), terminalSn);
+			//根据服务端的sn码，修改服务端的终端信息
+			this.updateTerminal(terminal);
+			break;
 
+		default:
+			break;
+		}
+    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+    }
+
+    /**
+     * 解析auto的门店参数转化成core需要的门店参数
+     * @param request
+     * @return
+     */
+    public Map<String,Object> parseStoreAutoToCore(Map<String,Object> src){
+    	Map<String,Object> dest=new HashMap<String,Object>();
+    	ClientOrderStore[] values=ClientOrderStore.values();
+    	for(ClientOrderStore value:values){
+    		this.transferMap(src, dest, value.getValue(), value.getMap());
+    	}
+    	return dest;
+    }
+
+    /**
+     * 解析auto的终端参数转化成core需要的终端参数
+     * @param request
+     * @return
+     */
+    public Map<String,Object> parseTerminalAutoToCore(Map<String,Object> src){
+    	Map<String,Object> dest=new HashMap<String,Object>();
+    	ClientOrderTerminal[] values=ClientOrderTerminal.values();
+    	for(ClientOrderTerminal value:values){
+    		this.transferMap(src, dest, value.getValue(), value.getMap());
+    	}
+    	return dest;
+    }
+    
+    /**
+     * map转存
+     * @param src
+     * @param dest
+     * @param srcKey
+     * @param destKey
+     */
+    public void transferMap(Map<String,Object> src,Map<String,Object> dest,String srcKey,String destKey){
+    	assert(src!=null&&dest!=null&&srcKey!=null&&destKey!=null&&src.get(srcKey)!=null);
+    	
+    	dest.put(destKey, src.get(srcKey));
+    }
 }

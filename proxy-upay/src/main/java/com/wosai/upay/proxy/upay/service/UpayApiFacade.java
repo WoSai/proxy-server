@@ -1,6 +1,7 @@
 package com.wosai.upay.proxy.upay.service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import com.wosai.upay.httpclient.UpayHttpClient;
 import com.wosai.upay.proxy.upay.exception.UpayApiException;
 import com.wosai.upay.proxy.upay.model.Order;
+import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.validation.PropNotEmpty;
 
 /**
@@ -21,6 +23,8 @@ import com.wosai.upay.validation.PropNotEmpty;
 public class UpayApiFacade {
 
     private String upayApiDomain;
+    private String vendorSn;
+    private String vendorKey;
 
     private String payApiUrl;
     private String refundApiUrl;
@@ -28,6 +32,7 @@ public class UpayApiFacade {
     private String cancelApiUrl;
     private String revokeApiUrl;
     private String precreateApiUrl;
+    private String checkinApiUrl;
     
     private long failedWaitTime=30000;
 
@@ -129,6 +134,22 @@ public class UpayApiFacade {
     	String url=new StringBuilder(upayApiDomain).append(precreateApiUrl).toString();
         return client.call(terminalSn, terminalKey, url, request);
     }
+    
+    public Map<String, Object> checkin(@NotEmpty(message="终端号不能为空")
+                                         String terminalSn,
+                                         @NotEmpty(message="终端密钥不能为空")
+                                         String deviceId) {
+    	Map<String,Object> request=new HashMap<String, Object>();
+    	request.put(TerminalKey.TERMINAL_SN, terminalSn);
+    	request.put(TerminalKey.DEVICE_ID, deviceId);
+        // 直接返回支付网关的结果
+    	String url=new StringBuilder(upayApiDomain).append(checkinApiUrl).toString();
+        try {
+			return client.call(vendorSn, vendorKey, url, request);
+		} catch (IOException e) {
+            throw new UpayApiException("Failed to call checkin api.", e);
+		}
+    }
 
 	public void setUpayApiDomain(String upayApiDomain) {
 		this.upayApiDomain = upayApiDomain;
@@ -168,6 +189,18 @@ public class UpayApiFacade {
 
 	public long getFailedWaitTime() {
 		return failedWaitTime;
+	}
+
+	public void setCheckinApiUrl(String checkinApiUrl) {
+		this.checkinApiUrl = checkinApiUrl;
+	}
+
+	public void setVendorSn(String vendorSn) {
+		this.vendorSn = vendorSn;
+	}
+
+	public void setVendorKey(String vendorKey) {
+		this.vendorKey = vendorKey;
 	}
 
 }

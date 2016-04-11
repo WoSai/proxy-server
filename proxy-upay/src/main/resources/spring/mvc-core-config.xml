@@ -25,6 +25,7 @@ MVC controllers, http converters, ...
 
     <mvc:view-controller path="/" view-name="documentation" />
     
+	<mvc:resources location="/api/" mapping="/api/**"/> 
 	<mvc:resources location="/image/" mapping="/image/**"/> 
 	<mvc:resources location="/css/" mapping="/css/**"/> 
 	<mvc:resources location="/js/" mapping="/js/**"/>

@@ -1,6 +1,8 @@
 package com.wosai.upay.proxy.upay.service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayResolveException;
 import com.wosai.upay.proxy.upay.exception.UpayApiException;
 import com.wosai.upay.proxy.upay.model.Order;
+import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.util.ResponseUtil;
 
 /**
@@ -36,6 +39,11 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     
     @Autowired
     private TerminalKeyStore keyStore;
+    
+    private static final Map<String,String> secretMap=new HashMap<String,String>();
+    private static final Map<String,String> dateMap=new HashMap<String,String>();
+    
+    private static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public void init(String terminalSn, String secret)
@@ -300,5 +308,34 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		String errorCode=(String) response.get(Response.ERROR_CODE);
 		String errorMessage=(String) response.get(Response.RESULT_CODE);
 		return new ProxyUpayResolveException(resultCode,errorCode,errorMessage);
+	}
+	
+	/**
+	 * 封装重复代码，实现每天第一次签到逻辑(后续版本迁移到core中，改成自动签到)
+	 * @param terminalSn
+	 * @return
+	 * @throws IOException 
+	 */
+	public String getKey(String terminalSn,Map<String,Object> request) throws ProxyUpayResolveException{
+		String today=sdf.format(Calendar.getInstance());
+		String date=dateMap.get(terminalSn);
+		if(date==null||date.equals(today)){
+			String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
+			Map<String,Object> response = upayApi.checkin(terminalSn, deviceId);
+			try {
+				Map<String, Object> bizData = ResponseUtil.resolve(response);
+				String secret = bizData.get(bizData.get(TerminalKey.TERMINAL_SN)).toString();
+
+				dateMap.put(terminalSn, date);
+				secretMap.put(terminalSn, secret);
+				return secret;
+			} catch (ResponseResolveException e) {
+				throw this.parseException(response);
+			}
+		}
+
+        return secretMap.get(terminalSn);
+		
+
 	}
 }

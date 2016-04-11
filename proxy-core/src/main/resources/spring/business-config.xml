@@ -36,6 +36,7 @@ Data and Service layers
   		p:createTerminalApiUrl="${vendor.api.terminal.create.url}"
   		p:updateTerminalApiUrl="${vendor.api.terminal.update.url}"
   		p:getTerminalApiUrl="${vendor.api.terminal.get.url}"
+   		p:activateTerminalApiUrl="${vendor.api.terminal.activate.url}"
   		/>
 
   <!-- 自动扫描业务逻辑包加载其它业务模块 -->

@@ -30,6 +30,7 @@ public class VendorApiFacade {
     private String createTerminalApiUrl;
     private String updateTerminalApiUrl;
     private String getTerminalApiUrl;
+    private String activateTerminalApiUrl;
 
     @Autowired
     private UpayHttpClient client;
@@ -105,13 +106,26 @@ public class VendorApiFacade {
 
 	public Map<String, Object> getTerminal(String sn) {
 		try {
-			Map<String,Object> map=new HashMap();
+			Map<String,Object> map=new HashMap<String,Object>();
         	String url=new StringBuilder(vendorApiDomain).append(getTerminalApiUrl).toString();
             return client.call(vendorSn, vendorKey, url, map);
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call getTerminal api.", ex);
         }
 	}
+
+	
+	public Map<String,Object> activateTerminal(@PropNotEmpty.List({
+        @PropNotEmpty(Terminal.CODE)
+      })
+                              Map<String, Object> request) throws VendorApiException {
+    	try {
+        	String url=new StringBuilder(vendorApiDomain).append(activateTerminalApiUrl).toString();
+            return client.call(vendorSn, vendorKey, url, request);
+        }catch(IOException ex) {
+            throw new VendorApiException("Failed to call activateTerminal api.", ex);
+        }
+    }
     
     public void setVendorApiDomain(String vendorApiDomain) {
         this.vendorApiDomain = vendorApiDomain;
@@ -151,6 +165,11 @@ public class VendorApiFacade {
 
 	public void setGetTerminalApiUrl(String getTerminalApiUrl) {
 		this.getTerminalApiUrl = getTerminalApiUrl;
+	}
+
+
+	public void setActivateTerminalApiUrl(String activateTerminalApiUrl) {
+		this.activateTerminalApiUrl = activateTerminalApiUrl;
 	}
     
 }

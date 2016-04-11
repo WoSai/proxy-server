@@ -40,6 +40,15 @@
         </constructor-arg>
     </bean>
 
+    <bean id="merchantMapDao" class="com.wosai.data.dao.common.TimedDaoBase">
+        <constructor-arg>
+            <bean class="com.wosai.data.dao.jdbc.JdbcDaoBase">
+                <constructor-arg index="0" value="proxy_merchant" />   <!-- 终端映射表 -->
+                <constructor-arg index="1" ref="jdbcTemplate" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
 
 
 </beans>

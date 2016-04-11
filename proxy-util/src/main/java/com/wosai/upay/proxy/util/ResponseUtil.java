@@ -13,11 +13,12 @@ public class ResponseUtil {
      * @return
      * @throws VendorApiException
      */
-    public static Map<String,Object> resolve(Map result) throws ResponseResolveException{
+    @SuppressWarnings("unchecked")
+	public static Map<String,Object> resolve(Map<String,Object> result) throws ResponseResolveException{
     	if(result!=null
     			&&result.get(Response.RESULT_CODE)!=null
     			&&result.get(Response.RESULT_CODE).equals(Response.RESULT_CODE_SUCEESS)){
-    		Map response=(Map) result.get(Response.BIZ_RESPONSE);
+			Map<String,Object> response=(Map<String,Object>) result.get(Response.BIZ_RESPONSE);
     		if(response!=null
     				&&response.get(Response.RESULT_CODE)!=null
     				&&response.get(Response.RESULT_CODE).equals(Response.RESPONSE_CODE_SUCEESS)){

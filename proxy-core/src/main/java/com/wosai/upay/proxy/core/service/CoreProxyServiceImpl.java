@@ -71,6 +71,18 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     	vendorApi.updateTerminal(request);
         
     }
+    
+    @Override
+    public Map<String, Object> activateTerminal(Map<String, Object> request)
+            throws ProxyCoreException {
+    	Map<String, Object> response=vendorApi.activateTerminal(request);
+    	try {
+	    	return ResponseUtil.resolve(response);
+		} catch (ResponseResolveException e) {
+			//转发服务端错误信息
+			throw this.parseException(response);
+		}
+    }
 
     @Override
     public Map<String, Object> getTerminal(String sn) throws ProxyCoreException {

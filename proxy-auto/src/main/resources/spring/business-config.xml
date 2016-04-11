@@ -24,6 +24,7 @@ Data and Service layers
   <bean class="com.wosai.upay.proxy.auto.service.ProxyObjectMap">
   	<property name="storeMapDao" ref="storeMapDao"/>
   	<property name="terminalMapDao" ref="terminalMapDao"/>
+  	<property name="merchantMapDao" ref="merchantMapDao"/>
   </bean>
 
   <!-- 自动扫描业务逻辑包加载其它业务模块 -->

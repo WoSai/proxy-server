@@ -35,7 +35,7 @@ public class ProxyCoreController {
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> updateStore(Map<String, Object> params) {
+    public Map<String, Object> updateStore(@RequestBody Map<String, Object> params) {
         proxyService.updateStore(params);
         return success();
     }
@@ -48,15 +48,22 @@ public class ProxyCoreController {
 
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> createTerminal(Map<String, Object> params) {
+    public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
         proxyService.createTerminal(params);
         return success();
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> updateTerminal(Map<String, Object> params) {
+    public Map<String, Object> updateTerminal(@RequestBody Map<String, Object> params) {
         proxyService.updateTerminal(params);
+        return success();
+    }
+
+    @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {
+        proxyService.activateTerminal(params);
         return success();
     }
 

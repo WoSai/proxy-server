@@ -1,9 +1,6 @@
 package com.wosai.upay.proxy.auto.model;
 
 public abstract class ClientOrder {
-    public static final String CLIENT_MERCHANT_SN = "client_merchant_sn";
-    public static final String CLIENT_STORE_SN = "client_store_sn";
-    public static final String CLIENT_TERMINAL_SN = "client_terminal_sn";
     public static final String CLIENT_SN = "client_sn";
     public static final String REFUND_REQUEST_NO = "refund_request_no";
     public static final String DYNAMIC_ID = "dynamic_id";
@@ -22,5 +19,8 @@ public abstract class ClientOrder {
     public static final String DEVICE_ID = "device_id";
     public static final String PAYER_UID = "payer_uid";
     public static final String NOTIFY_URL = "notify_url";
+    
+    public static final String CLIENT_TERMINAL= "client_terminal";
+    public static final String CLIENT_STORE= "client_store";
 
 }

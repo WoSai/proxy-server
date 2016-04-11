@@ -15,4 +15,5 @@ public interface ProxyCoreService {
     Map<String, Object> createTerminal(Map<String, Object> request) throws ProxyCoreException;
     void updateTerminal(Map<String, Object> request) throws ProxyCoreException;
     Map<String, Object> getTerminal(String sn) throws ProxyCoreException;
+    Map<String, Object> activateTerminal(Map<String, Object> request) throws ProxyCoreException;
 }

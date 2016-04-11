@@ -26,7 +26,7 @@ public class ProxyAutoController {
     @Autowired
     private ProxyAutoService proxyService; 
 
-    // 门店和终端管理
+    // 门店管理
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(Map<String, Object> params) {
@@ -38,6 +38,26 @@ public class ProxyAutoController {
     public Map<String, Object> updateStore(Map<String, Object> params) {
         proxyService.updateStore(params);
         return success();
+    }
+    
+    //终端管理
+    @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> createTerminal(Map<String, Object> params) {
+        return success(proxyService.createTerminal(params));
+    }
+
+    @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> updateTerminal(Map<String, Object> params) {
+        proxyService.updateTerminal(params);
+        return success();
+    }
+    
+    @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> activateTerminal(Map<String, Object> params) {
+        return success(proxyService.activateTerminal(params));
     }
 
     // 交易
@@ -57,6 +77,24 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> query(Map<String, Object> params) {
         return success(proxyService.query(params));
+    }
+
+    @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> refund(Map<String, Object> params) {
+        return success(proxyService.refund(params));
+    }
+
+    @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> revoke(Map<String, Object> params) {
+        return success(proxyService.revoke(params));
+    }
+
+    @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> cancel(Map<String, Object> params) {
+        return success(proxyService.cancel(params));
     }
 
     @SuppressWarnings("unchecked")
