@@ -1,0 +1,138 @@
+[ng-controller]{
+	display: none;
+}
+.ng-scope[ng-controller]{
+	display: block;
+}
+html,body{
+	margin:0px;
+	padding:0px;
+	background:rgb(235,235,235);
+	font-size:14px;
+	font-family: "Helvetica Neue", Helvetica, Arial, "Hiragino Sans GB", "Hiragino Sans GB W3", "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+	color:rgb(120,120,120);
+	overflow-x:hidden;
+}
+ul,li{
+	padding:0px;
+	margin:0px;
+	list-style:none;
+}
+
+.jm-form {
+	margin-top:10px;
+	box-shadow: 0px 0px 5px rgb(200, 200, 200);
+}
+.jm-form:first-child{
+	margin-top:0px;
+}
+.jm-form ul {
+	margin: 0px;
+	padding: 10px;
+	background: white;
+}
+.jm-form ul:first-child{
+	border-bottom:1px dotted rgb(200,200,200);
+}
+.jm-form li {
+	position: relative;
+	min-height: 20px;
+	line-height: 20px;
+	list-style: none;
+	padding: 2.5px 0px;
+}
+input,select{
+    display: inline-block;
+	width:78%;
+	border: 1px solid rgb(200, 200, 200);
+	border-radius: 5px;
+	text-indent: 10px;
+	height:100%;
+	min-height:25px;
+	line-height:25px;
+}
+select{
+	width:20%;
+}
+textarea{
+	width:100%;
+	border: 1px solid rgb(200, 200, 200);
+	border-radius: 5px;
+	min-height:100px;
+}
+button{
+	display: block;
+	float:right;
+	width: 25%;
+	height: 30px;
+	border-radius: 5px;
+	border: 0px;
+	background: #3accdb;
+	color: white;
+}
+
+
+
+
+#jm-download{
+	display:none;
+	height:50px;
+}
+#jm-download ul{
+	position: fixed;
+	bottom:0px;
+	width:100%;
+	height:50px;
+	margin:0px;
+	padding:0px;
+}
+#jm-download ul:first-child{
+	background: black;
+	opacity:0.5;
+	z-index:2;
+}
+#jm-download ul:last-child{
+	z-index:3;
+}
+#jm-download li:first-child{
+	list-style:none;
+	float:left;
+	width:190px;
+	margin:5px;
+}
+#jm-download li:last-child{
+	list-style:none;
+	float:right;
+	width:100px;
+	margin:5px 10px 0px 0px;
+}
+#jm-download li:last-child a{
+	display:block;
+	width:100px;
+	line-height:30px;
+	height:30px;
+	margin:5px 10px 0px 0px;
+	background: white;
+	border-radius:5px;
+	font-size:12px;
+	text-align:center;
+	text-decoration: none;
+	color:rgb(132,132,132);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

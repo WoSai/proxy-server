@@ -1,0 +1,15 @@
+{
+	"code":"200",
+	"data":[
+	{
+		"title":"激活",
+		"action":"../terminal/activate",
+		"method":"post",
+		"param":{
+			"code":"99999999",
+			"device_id":"test",
+			"sdk_version":"proxy-server 0.0.1-snapshot"
+		}
+	}
+	]
+}

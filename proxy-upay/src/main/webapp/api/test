@@ -1,0 +1,29 @@
+{
+	"code":"200",
+	"data":[
+	{
+		"title":"激活",
+		"action":"../terminal/activate",
+		"method":"post",
+		"param":{
+			"code":"99999999",
+			"device_id":"",
+			"sdk_version":"proxy-server 0.0.1-snapshot"
+		}
+	},
+	{
+		"title":"支付",
+		"action":"",
+		"method":"post",
+		"param":{
+			"sn":""
+		}
+	},
+	{
+		"title":"",
+		"action":"",
+		"method":"post",
+		"param":{}
+	}
+	]
+}
