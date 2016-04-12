@@ -103,7 +103,7 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
 	public ProxyCoreResolveException parseException(Map<String, Object> response){
 		String resultCode=(String) response.get(Response.RESULT_CODE);
 		String errorCode=(String) response.get(Response.ERROR_CODE);
-		String errorMessage=(String) response.get(Response.RESULT_CODE);
+		String errorMessage=(String) response.get(Response.ERROR_MESSAGE);
 		return new ProxyCoreResolveException(resultCode,errorCode,errorMessage);
 	}
     

@@ -18,6 +18,8 @@ import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoBizException;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoSystemException;
 import com.wosai.upay.proxy.auto.service.ProxyAutoService;
+import com.wosai.upay.proxy.core.exception.ProxyCoreSystemException;
+import com.wosai.upay.proxy.upay.exception.ProxyUpaySystemException;
 
 @Controller
 @RequestMapping("/auto")
@@ -151,6 +153,30 @@ public class ProxyAutoController {
         logger.error("Unknown system error.", ex);
         return CollectionUtil.hashMap("result", "-1",
                                       "error_code",  "UNKNOWN_SYSTEM_ERROR",
+                                      "error_message", ex.getMessage());
+    }
+    
+
+    
+    @SuppressWarnings("unchecked")
+    @ExceptionHandler(ProxyCoreSystemException.class)
+    @ResponseBody
+    public Map<String, Object> handleCoreSystemException(ProxyCoreSystemException ex) {
+        logger.error("System exception.", ex);
+        return CollectionUtil.hashMap("result", "-1",
+                                      "error_code",  ex.getCode(),
+                                      "error_message", ex.getMessage());
+    }
+    
+
+    
+    @SuppressWarnings("unchecked")
+    @ExceptionHandler(ProxyUpaySystemException.class)
+    @ResponseBody
+    public Map<String, Object> handleUpaySystemException(ProxyUpaySystemException ex) {
+        logger.error("System exception.", ex);
+        return CollectionUtil.hashMap("result", "-1",
+                                      "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
 

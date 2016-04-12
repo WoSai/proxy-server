@@ -306,7 +306,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	public ProxyUpayResolveException parseException(Map<String, Object> response){
 		String resultCode=(String) response.get(Response.RESULT_CODE);
 		String errorCode=(String) response.get(Response.ERROR_CODE);
-		String errorMessage=(String) response.get(Response.RESULT_CODE);
+		String errorMessage=(String) response.get(Response.ERROR_MESSAGE);
 		return new ProxyUpayResolveException(resultCode,errorCode,errorMessage);
 	}
 	
