@@ -1,5 +1,10 @@
 package com.wosai.upay.proxy.core.exception;
 
+/**
+ * 转发服务端异常
+ * @author qi
+ *
+ */
 public class ProxyCoreResolveException extends ProxyCoreSystemException {
 
     private static final long serialVersionUID = 1L;
@@ -8,8 +13,6 @@ public class ProxyCoreResolveException extends ProxyCoreSystemException {
     
     private String errorCode;
     
-    private String errorMessage;
-
     public ProxyCoreResolveException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -24,17 +27,12 @@ public class ProxyCoreResolveException extends ProxyCoreSystemException {
 		super(errorMessage, null);
 		this.resultCode = resultCode;
 		this.errorCode = errorCode;
-		this.errorMessage = errorMessage;
 	}
 
     @Override
     public String getCode() {
         return errorCode;
     }
-	@Override
-	public String getMessage() {
-		return errorMessage;
-	}
 	public String getResultCode() {
 		return resultCode;
 	}

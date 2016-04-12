@@ -1,5 +1,10 @@
 package com.wosai.upay.proxy.upay.exception;
 
+/**
+ * 转发服务端异常
+ * @author qi
+ *
+ */
 public class ProxyUpayResolveException extends ProxyUpaySystemException {
 
     private static final long serialVersionUID = 1L;

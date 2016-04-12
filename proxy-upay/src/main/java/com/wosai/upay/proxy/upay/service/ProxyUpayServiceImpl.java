@@ -61,7 +61,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // B扫C终端流程
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
         try {
 			Map<String, Object> response = upayApi.pay(terminalSn,
 			                                         terminalKey,
@@ -140,7 +140,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // C扫B入口
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
 		try {
 			Map<String, Object> response = upayApi.precreate(terminalSn,
 			                                         terminalKey,
@@ -183,7 +183,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 退款
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
 		try {
 			Map<String, Object> response = upayApi.refund(terminalSn,
 			                                         terminalKey,
@@ -227,7 +227,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 查询
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
 		Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
 		try {
 			return ResponseUtil.resolve(response);
@@ -242,7 +242,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 手动撤单
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
         Map<String, Object> response = upayApi.revoke(terminalSn,
 		                                         terminalKey,
 		                                         request);
@@ -259,7 +259,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 冲正
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = keyStore.getKey(terminalSn);
+        String terminalKey = this.getKey(terminalSn,request);
         Map<String, Object> response = upayApi.cancel(terminalSn,
 		                                         terminalKey,
 		                                         request);
