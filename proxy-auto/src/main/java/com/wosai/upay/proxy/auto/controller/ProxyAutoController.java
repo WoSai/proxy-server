@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,13 +30,13 @@ public class ProxyAutoController {
     // 门店管理
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> createStore(Map<String, Object> params) {
+    public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
         return success(proxyService.createStore(params));
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> updateStore(Map<String, Object> params) {
+    public Map<String, Object> updateStore(@RequestBody Map<String, Object> params) {
         proxyService.updateStore(params);
         return success();
     }
@@ -43,7 +44,7 @@ public class ProxyAutoController {
     //终端管理
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> createTerminal(Map<String, Object> params) {
+    public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
         return success(proxyService.createTerminal(params));
     }
 
@@ -56,44 +57,44 @@ public class ProxyAutoController {
     
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> activateTerminal(Map<String, Object> params) {
+    public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {
         return success(proxyService.activateTerminal(params));
     }
 
     // 交易
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> pay(Map<String, Object> params) {
+    public Map<String, Object> pay(@RequestBody Map<String, Object> params) {
         return success(proxyService.pay(params));
     }
 
     @RequestMapping(value="/precreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> preceate(Map<String, Object> params) {
+    public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
         return success(proxyService.precreate(params));
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> query(Map<String, Object> params) {
+    public Map<String, Object> query(@RequestBody Map<String, Object> params) {
         return success(proxyService.query(params));
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> refund(Map<String, Object> params) {
+    public Map<String, Object> refund(@RequestBody Map<String, Object> params) {
         return success(proxyService.refund(params));
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> revoke(Map<String, Object> params) {
+    public Map<String, Object> revoke(@RequestBody Map<String, Object> params) {
         return success(proxyService.revoke(params));
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> cancel(Map<String, Object> params) {
+    public Map<String, Object> cancel(@RequestBody Map<String, Object> params) {
         return success(proxyService.cancel(params));
     }
 
