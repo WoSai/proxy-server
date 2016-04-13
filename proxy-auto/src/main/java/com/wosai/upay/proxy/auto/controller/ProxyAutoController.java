@@ -16,10 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoBizException;
+import com.wosai.upay.proxy.auto.exception.ProxyAutoClientException;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoSystemException;
 import com.wosai.upay.proxy.auto.service.ProxyAutoService;
-import com.wosai.upay.proxy.core.exception.ProxyCoreSystemException;
-import com.wosai.upay.proxy.upay.exception.ProxyUpaySystemException;
 
 @Controller
 @RequestMapping("/auto")
@@ -112,18 +111,12 @@ public class ProxyAutoController {
     }
 
     @SuppressWarnings("unchecked")
-    @ExceptionHandler(MethodConstraintViolationException.class)
+    @ExceptionHandler(ProxyAutoClientException.class)
     @ResponseBody
-    public Map<String, Object> handleValidationException(MethodConstraintViolationException ex) {
-        StringBuilder sb = new StringBuilder();
-        for(MethodConstraintViolation<?> violation: ex.getConstraintViolations()) {
-            if (sb.length() > 0)
-                sb.append("\n");
-            sb.append(violation.getMessage());
-        }
+    public Map<String, Object> handleValidationException(ProxyAutoClientException ex) {
         return CollectionUtil.hashMap("result_code", "400",
-                                      "error_code", "INVALID_PARAMS",
-                                      "error_message", sb.toString());
+                                      "error_code", ex.getCode(),
+                                      "error_message", ex.getMessage());
 
     }
 
@@ -155,29 +148,4 @@ public class ProxyAutoController {
                                       "error_code",  "UNKNOWN_SYSTEM_ERROR",
                                       "error_message", ex.getMessage());
     }
-    
-
-    
-    @SuppressWarnings("unchecked")
-    @ExceptionHandler(ProxyCoreSystemException.class)
-    @ResponseBody
-    public Map<String, Object> handleCoreSystemException(ProxyCoreSystemException ex) {
-        logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result_code", "-1",
-                                      "error_code",  ex.getCode(),
-                                      "error_message", ex.getMessage());
-    }
-    
-
-    
-    @SuppressWarnings("unchecked")
-    @ExceptionHandler(ProxyUpaySystemException.class)
-    @ResponseBody
-    public Map<String, Object> handleUpaySystemException(ProxyUpaySystemException ex) {
-        logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result_code", "-1",
-                                      "error_code",  ex.getCode(),
-                                      "error_message", ex.getMessage());
-    }
-
 }

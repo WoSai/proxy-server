@@ -11,6 +11,9 @@ import com.wosai.upay.httpclient.UpayHttpClient;
 import com.wosai.upay.proxy.core.exception.VendorApiException;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
+import com.wosai.upay.proxy.exception.BizResponseResolveException;
+import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.util.ResponseUtil;
 import com.wosai.upay.validation.PropNotEmpty;
 
 /**
@@ -20,7 +23,6 @@ import com.wosai.upay.validation.PropNotEmpty;
  */
 @Validated
 public class VendorApiFacade {
-    private String vendorApiDomain;
     private String vendorSn;
     private String vendorKey;
     
@@ -49,8 +51,8 @@ public class VendorApiFacade {
 						      })
                               Map<String, Object> request) throws VendorApiException {
         try {
-        	String url=new StringBuilder(vendorApiDomain).append(createStoreApiUrl).toString();
-            return client.call(vendorSn, vendorKey, url, request);
+        	String url = createStoreApiUrl;
+            return resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call createStore api.", ex);
         }
@@ -59,8 +61,8 @@ public class VendorApiFacade {
 
 	public void updateStore(Map<String, Object> request) {
 		try {
-        	String url=new StringBuilder(vendorApiDomain).append(updateStoreApiUrl).toString();
-            client.call(vendorSn, vendorKey, url, request);
+        	String url = updateStoreApiUrl;
+            resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call updateStore api.", ex);
         }
@@ -69,8 +71,8 @@ public class VendorApiFacade {
 
 	public Map<String, Object> getStore(String sn) {
 		try {
-        	String url=new StringBuilder(vendorApiDomain).append(getStoreApiUrl).toString();
-            return client.call(vendorSn, vendorKey, url, null);
+        	String url = getStoreApiUrl;
+            return resolve2(client.call(vendorSn, vendorKey, url, null));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call getStore api.", ex);
         }
@@ -86,8 +88,8 @@ public class VendorApiFacade {
       })
                               Map<String, Object> request) throws VendorApiException {
     	try {
-        	String url=new StringBuilder(vendorApiDomain).append(createTerminalApiUrl).toString();
-            return client.call(vendorSn, vendorKey, url, request);
+        	String url = createTerminalApiUrl;
+            return resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call createTerminal api.", ex);
         }
@@ -96,8 +98,8 @@ public class VendorApiFacade {
 
 	public void updateTerminal(Map<String, Object> request) {
 		try {
-        	String url=new StringBuilder(vendorApiDomain).append(updateTerminalApiUrl).toString();
-            client.call(vendorSn, vendorKey, url, request);
+        	String url = updateTerminalApiUrl;
+            resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call updateTerminal api.", ex);
         }
@@ -107,8 +109,8 @@ public class VendorApiFacade {
 	public Map<String, Object> getTerminal(String sn) {
 		try {
 			Map<String,Object> map=new HashMap<String,Object>();
-        	String url=new StringBuilder(vendorApiDomain).append(getTerminalApiUrl).toString();
-            return client.call(vendorSn, vendorKey, url, map);
+        	String url = getTerminalApiUrl;
+            return resolve2(client.call(vendorSn, vendorKey, url, map));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call getTerminal api.", ex);
         }
@@ -120,16 +122,36 @@ public class VendorApiFacade {
       })
                               Map<String, Object> request) throws VendorApiException {
     	try {
-        	String url=new StringBuilder(vendorApiDomain).append(activateTerminalApiUrl).toString();
-            return client.call(vendorSn, vendorKey, url, request);
+        	String url = activateTerminalApiUrl;
+            return resolve1(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call activateTerminal api.", ex);
         }
     }
     
-    public void setVendorApiDomain(String vendorApiDomain) {
-        this.vendorApiDomain = vendorApiDomain;
+    private Map<String, Object> resolve1(Map<String, Object> result) {
+        try {
+            return ResponseUtil.resolve1(result);
+
+        } catch (ResponseResolveException e) {
+            throw new VendorApiException(String.format("Vendor API response has error - %s : %s", e.getCode(), e.getMessage()));
+
+        }
     }
+
+    private Map<String, Object> resolve2(Map<String, Object> result) {
+        try {
+            return ResponseUtil.resolve2(result);
+
+        } catch (ResponseResolveException e) {
+            throw new VendorApiException(String.format("Vendor API response has error - %s : %s", e.getCode(), e.getMessage()));
+
+        } catch (BizResponseResolveException e) {
+            throw new VendorApiException(String.format("Vendor API biz response has error - %s : %s", e.getCode(), e.getMessage()));
+
+        }
+    }
+
     public void setVendorSn(String vendorSn) {
         this.vendorSn = vendorSn;
     }

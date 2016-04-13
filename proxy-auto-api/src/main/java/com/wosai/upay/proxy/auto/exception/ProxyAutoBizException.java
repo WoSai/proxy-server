@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.auto.exception;
 
-public abstract class ProxyAutoBizException extends RuntimeException {
+public abstract class ProxyAutoBizException extends ProxyAutoException {
     private static final long serialVersionUID = 1L;
 
     public ProxyAutoBizException(String message, Throwable cause) {

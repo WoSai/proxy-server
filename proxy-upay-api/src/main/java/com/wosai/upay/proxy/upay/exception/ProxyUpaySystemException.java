@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.upay.exception;
 
-public abstract class ProxyUpaySystemException extends RuntimeException {
+public abstract class ProxyUpaySystemException extends ProxyUpayException {
     private static final long serialVersionUID = 1L;
 
     public ProxyUpaySystemException(String message, Throwable cause) {

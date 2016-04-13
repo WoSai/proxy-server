@@ -16,7 +16,7 @@ public class UpayApiException extends ProxyUpaySystemException {
 
     @Override
     public String getCode() {
-        return "VENDOR_API_EXCEPTION";
+        return "UPAY_API_EXCEPTION";
     }
 
 }

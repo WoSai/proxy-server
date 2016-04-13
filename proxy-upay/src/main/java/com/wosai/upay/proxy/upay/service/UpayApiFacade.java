@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
 import com.wosai.upay.httpclient.UpayHttpClient;
-import com.wosai.upay.proxy.upay.exception.UpayApiException;
 import com.wosai.upay.proxy.upay.model.Order;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.validation.PropNotEmpty;
@@ -52,6 +51,7 @@ public class UpayApiFacade {
 
         // 直接返回支付网关的结果
     	String url=new StringBuilder(upayApiDomain).append(payApiUrl).toString();
+    	
         return client.call(terminalSn, terminalKey, url, request);
     }
     
@@ -69,6 +69,7 @@ public class UpayApiFacade {
 
         // 直接返回支付网关的结果
     	String url=new StringBuilder(upayApiDomain).append(refundApiUrl).toString();
+    	
         return client.call(terminalSn, terminalKey, url, request);
     }
     
@@ -76,45 +77,30 @@ public class UpayApiFacade {
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         Map<String, Object> request) throws UpayApiException {
+                                         Map<String, Object> request) throws IOException{
 
-    	try {
-            // 直接返回支付网关的结果
-        	String url=new StringBuilder(upayApiDomain).append(queryApiUrl).toString();
-            return client.call(terminalSn, terminalKey, url, request);
-        }catch(IOException ex) {
-            throw new UpayApiException("Failed to call upay api.", ex);
-        }
+        String url=new StringBuilder(upayApiDomain).append(queryApiUrl).toString();
+        return client.call(terminalSn, terminalKey, url, request);
     }
     
     public Map<String, Object> cancel(@NotEmpty(message="终端号不能为空")
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         Map<String, Object> request) throws UpayApiException {
+                                         Map<String, Object> request) throws IOException {
 
-    	try {
-            // 直接返回支付网关的结果
-        	String url=new StringBuilder(upayApiDomain).append(cancelApiUrl).toString();
-            return client.call(terminalSn, terminalKey, url, request);
-        }catch(IOException ex) {
-            throw new UpayApiException("Failed to call upay api.", ex);
-        }
+        String url=new StringBuilder(upayApiDomain).append(cancelApiUrl).toString();
+        return client.call(terminalSn, terminalKey, url, request);
     }
     
     public Map<String, Object> revoke(@NotEmpty(message="终端号不能为空")
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         Map<String, Object> request) throws UpayApiException {
+                                         Map<String, Object> request) throws IOException {
 
-    	try {
-            // 直接返回支付网关的结果
-        	String url=new StringBuilder(upayApiDomain).append(revokeApiUrl).toString();
-            return client.call(terminalSn, terminalKey, url, request);
-        }catch(IOException ex) {
-            throw new UpayApiException("Failed to call upay api.", ex);
-        }
+        String url=new StringBuilder(upayApiDomain).append(revokeApiUrl).toString();
+        return client.call(terminalSn, terminalKey, url, request);
     }
     
     public Map<String, Object> precreate(@NotEmpty(message="终端号不能为空")
@@ -140,20 +126,18 @@ public class UpayApiFacade {
 									   @NotEmpty(message="终端密钥不能为空")
 									   String terminalKey,
                                        @NotEmpty(message="设备编号不能为空")
-                                       String deviceId) {
-    	Map<String,Object> request=new HashMap<String, Object>();
+                                       String deviceId) throws IOException {
+
+        Map<String,Object> request=new HashMap<String, Object>();
     	request.put(TerminalKey.TERMINAL_SN, terminalSn);
     	request.put(TerminalKey.DEVICE_ID, deviceId);
         // 直接返回支付网关的结果
     	String url=new StringBuilder(upayApiDomain).append(checkinApiUrl).toString();
-        try {
-			return client.call(terminalSn, terminalKey, url, request);
-		} catch (IOException e) {
-            throw new UpayApiException("Failed to call checkin api.", e);
-		}
+    	return client.call(terminalSn, terminalKey, url, request);
     }
 
-	public void setUpayApiDomain(String upayApiDomain) {
+
+    public void setUpayApiDomain(String upayApiDomain) {
 		this.upayApiDomain = upayApiDomain;
 	}
 

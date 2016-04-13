@@ -2,8 +2,6 @@ package com.wosai.upay.proxy.core.controller;
 
 import java.util.Map;
 
-import org.hibernate.validator.method.MethodConstraintViolation;
-import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.core.exception.ProxyCoreBizException;
+import com.wosai.upay.proxy.core.exception.ProxyCoreClientException;
 import com.wosai.upay.proxy.core.exception.ProxyCoreSystemException;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
 
@@ -83,18 +82,12 @@ public class ProxyCoreController {
     }
 
     @SuppressWarnings("unchecked")
-    @ExceptionHandler(MethodConstraintViolationException.class)
+    @ExceptionHandler(ProxyCoreClientException.class)
     @ResponseBody
-    public Map<String, Object> handleValidationException(MethodConstraintViolationException ex) {
-        StringBuilder sb = new StringBuilder();
-        for(MethodConstraintViolation<?> violation: ex.getConstraintViolations()) {
-            if (sb.length() > 0)
-                sb.append("\n");
-            sb.append(violation.getMessage());
-        }
+    public Map<String, Object> handleValidationException(ProxyCoreClientException ex) {
         return CollectionUtil.hashMap("result", "400",
-                                      "error_code", "INVALID_PARAMS",
-                                      "error_message", sb.toString());
+                                      "error_code", ex.getCode(),
+                                      "error_message", ex.getMessage());
 
     }
 

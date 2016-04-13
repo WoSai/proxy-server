@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.core.exception;
 
-public abstract class ProxyCoreSystemException extends RuntimeException {
+public abstract class ProxyCoreSystemException extends ProxyCoreException {
     private static final long serialVersionUID = 1L;
 
     public ProxyCoreSystemException(String message, Throwable cause) {

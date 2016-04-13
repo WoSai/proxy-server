@@ -51,7 +51,8 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     @Override
     public Map<String, Object> activateTerminal(Map<String, Object> request)
             throws ProxyCoreException {
-    	return vendorApi.activateTerminal(request);
+
+        return vendorApi.activateTerminal(request);
     }
 
     @Override
@@ -63,5 +64,5 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
 	public void setVendorApi(VendorApiFacade vendorApi) {
 		this.vendorApi = vendorApi;
 	}
-    
+
 }

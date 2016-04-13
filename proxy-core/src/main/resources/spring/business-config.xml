@@ -27,7 +27,6 @@ Data and Service layers
   </bean>
   <bean class="com.wosai.upay.httpclient.UpayHttpClient"/>
   <bean class="com.wosai.upay.proxy.core.service.VendorApiFacade"
-  		p:vendorApiDomain="${vendor.api.domain}"
   		p:vendorSn="${vendor.sn}"
   		p:vendorKey="${vendor.key}"
   		p:createStoreApiUrl="${vendor.api.store.create.url}"

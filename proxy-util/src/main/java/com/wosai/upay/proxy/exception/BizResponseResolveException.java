@@ -1,11 +1,11 @@
 package com.wosai.upay.proxy.exception;
 
-public class ResponseResolveException extends Exception {
+public class BizResponseResolveException extends Exception {
     private String code;
 
     private static final long serialVersionUID = 1L;
 
-    public ResponseResolveException(String errorCode, String errorMessage) {
+    public BizResponseResolveException(String errorCode, String errorMessage) {
         super(errorMessage);
         this.code = errorCode;
     }

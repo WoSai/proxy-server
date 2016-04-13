@@ -11,10 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wosai.upay.proxy.exception.BizResponseResolveException;
 import com.wosai.upay.proxy.exception.ResponseResolveException;
 import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
-import com.wosai.upay.proxy.upay.exception.ProxyUpayResolveException;
+import com.wosai.upay.proxy.upay.exception.ProxyUpayKeyStoreException;
 import com.wosai.upay.proxy.upay.exception.UpayApiException;
 import com.wosai.upay.proxy.upay.model.Order;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
@@ -51,7 +52,11 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 初始化终端密钥
         // 以后自动签到会更新密钥
-        keyStore.setKey(terminalSn, secret);
+        try {
+            keyStore.setKey(terminalSn, secret);
+        }catch(Exception ex) {
+            throw new ProxyUpayKeyStoreException(ex.getMessage(), ex);
+        }
         
     }
 
@@ -75,7 +80,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
+				Map<String, Object> bizData=ResponseUtil.resolve2(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -84,22 +89,23 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 					//返回最新订单信息
 					return response;
 				}
-			} catch (ProxyUpayException e1) {
-				logger.debug("call pay > query Api timeout",e1);
+			} catch (IOException e1) {
+				logger.debug("possible network outage",e1);
 			} catch (ResponseResolveException e1) {
-				logger.debug("resolve pay > query response faild",e1);
+				logger.debug("maybe the server is temporarily unavailable",e1);
+			} catch (BizResponseResolveException ex) {
+                logger.debug("if the order doesn't exist you'll end up here.", ex);
 			}
 			try {
 				//等待一段时间继续查询
 				Thread.sleep(upayApi.getFailedWaitTime());
 			} catch (InterruptedException e1) {
-				logger.debug("pay sleep error",e1);
 			}
 
 			try {
 				//再次查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
+				Map<String, Object> bizData=ResponseUtil.resolve2(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				
 				//判断是否已经交易成功
@@ -108,16 +114,28 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 							||status.equals(Order.ORDER_STATUS_PAY_CANCELED)){
 						//返回最新订单信息
 						return response;
-					} else if (status.equals(Order.ORDER_STATUS_CREATED)){
-						//取消订单
-						return upayApi.cancel(terminalSn, terminalKey, request);
 					}
 				}
-			} catch (ProxyUpayException e1) {
-				logger.debug("call pay > query Api timeout",e1);
-			} catch (ResponseResolveException e1) {
-				logger.debug("resolve pay > query response faild",e1);
-			}
+			} catch (IOException e1) {
+                logger.debug("possible network outage",e1);
+            } catch (ResponseResolveException e1) {
+                logger.debug("maybe the server is temporarily unavailable",e1);
+            } catch (BizResponseResolveException ex) {
+                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            }
+			
+			try {
+			    Map<String, Object> response = upayApi.cancel(terminalSn, terminalKey, request); 
+			    Map<String, Object> bizData=ResponseUtil.resolve2(response);
+			    return response;
+
+			} catch (IOException e1) {
+                logger.debug("possible network outage",e1);
+            } catch (ResponseResolveException e1) {
+                logger.debug("maybe the server is temporarily unavailable",e1);
+            } catch (BizResponseResolveException ex) {
+                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            }
 		}
 
         //所有执行都失败，电话联系客服
@@ -142,7 +160,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
+				Map<String, Object> bizData = ResponseUtil.resolve2(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -151,11 +169,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 					//返回最新订单信息
 					return response;
 				}
-			} catch (ProxyUpayException e1) {
-				logger.debug("call pay > query Api timeout",e1);
-			} catch (ResponseResolveException e1) {
-				logger.debug("resolve pay > query response faild",e1);
-			}
+			} catch (IOException e1) {
+                logger.debug("possible network outage",e1);
+            } catch (ResponseResolveException e1) {
+                logger.debug("maybe the server is temporarily unavailable",e1);
+            } catch (BizResponseResolveException ex) {
+                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            }
 		}
 		
         //所有执行都失败，电话联系客服
@@ -180,7 +200,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
+				Map<String, Object> bizData=ResponseUtil.resolve2(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -189,11 +209,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 					//返回最新订单信息
 					return response;
 				}
-			} catch (ProxyUpayException e1) {
-				logger.debug("call pay > query Api timeout",e1);
-			} catch (ResponseResolveException e1) {
-				logger.debug("resolve pay > query response faild",e1);
-			}
+			} catch (IOException e1) {
+                logger.debug("possible network outage",e1);
+            } catch (ResponseResolveException e1) {
+                logger.debug("maybe the server is temporarily unavailable",e1);
+            } catch (BizResponseResolveException ex) {
+                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            }
 		}
 		
         //所有执行都失败，电话联系客服
@@ -207,8 +229,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         // 查询
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
-		Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-		return response;
+        try {
+            Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
+            return response;
+        } catch (IOException e1) {
+            logger.debug("possible network outage",e1);
+            throw new UpayApiException("failed to query");
+        }
     }
 
     @Override
@@ -218,10 +245,15 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         // 手动撤单
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
-        Map<String, Object> response = upayApi.revoke(terminalSn,
-		                                         terminalKey,
-		                                         request);
-        return response;
+        try {
+            Map<String, Object> response = upayApi.revoke(terminalSn,
+    		                                         terminalKey,
+    		                                         request);
+            return response;
+        } catch (IOException e1) {
+            logger.debug("possible network outage",e1);
+            throw new UpayApiException("failed to revoke.");
+        }
     }
 
     @Override
@@ -231,82 +263,43 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         // 冲正
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
-        Map<String, Object> response = upayApi.cancel(terminalSn,
-		                                         terminalKey,
-		                                         request);
-        return response;
+        try {
+            Map<String, Object> response = upayApi.cancel(terminalSn,
+    		                                         terminalKey,
+    		                                         request);
+            return response;
+        } catch (IOException e1) {
+            logger.debug("possible network outage",e1);
+            throw new UpayApiException("failed to cancel");
+        }
     }
 
     
-    /**
-     * 根据支付请求发起查询请求获取订单信息
-     * @param request
-     * @return
-     */
-    public Map<String, Object> getOrderDataByPayRequest(Map<String, Object> request){
-    	try {
-			//查询订单状态
-			Map<String, Object> response = this.query(request);
-			Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
-			String status=(String) bizData.get(Order.ORDER_STATUS);
-			//判断是否已经交易成功
-			if(status!=null&&
-					(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
-					){
-				//返回最新订单信息
-				return bizData;
-			}
-		} catch (ProxyUpayException e1) {
-			logger.debug("call pay > query Api timeout",e1);
-		} catch (ResponseResolveException e1) {
-			logger.debug("resolve pay > query response faild",e1);
-		}
-    	return null;
-    }
 
-    /**
-     * 封装重复代码，转发服务端通信正常，但业务处理的错误信息
-     * @param response
-     * @return
-     */
-	public ProxyUpayResolveException parseException(Map<String, Object> response){
-		String resultCode=(String) response.get(Response.RESULT_CODE);
-		String errorCode=(String) response.get(Response.ERROR_CODE);
-		String errorMessage=(String) response.get(Response.ERROR_MESSAGE);
-		if(resultCode.equals(Response.RESULT_CODE_SUCEESS)){
-			Map<String, Object> bizData=(Map<String, Object>)response.get(Response.BIZ_RESPONSE);
-			resultCode=bizData.get(Response.RESULT_CODE).toString();
-			errorCode=bizData.get(Response.ERROR_CODE).toString();
-			errorMessage=bizData.get(Response.ERROR_MESSAGE).toString();
-		}
-		return new ProxyUpayResolveException(resultCode,errorCode,errorMessage);
-	}
-	
 	/**
 	 * 封装重复代码，实现每天第一次签到逻辑
 	 * @param terminalSn
 	 * @return
 	 * @throws IOException 
 	 */
-	public String getKey(String terminalSn,Map<String,Object> request) throws ProxyUpayResolveException{
+	private String getKey(String terminalSn,Map<String,Object> request) {
 		String today=sdf.format(Calendar.getInstance().getTime());
 		String date=dateMap.get(terminalSn);
 		if(date==null||!date.equals(today)){
-			String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
-			String terminalKey=keyStore.getKey(terminalSn);
-			Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
-			try {
-				Map<String, Object> bizData = ResponseUtil.resolveCore(response);
-				String secret = bizData.get(TerminalKey.TERMINAL_KEY).toString();
-
-		        // 更新密钥
-				dateMap.put(terminalSn, today);
-				secretMap.put(terminalSn, secret);
-		        keyStore.setKey(terminalSn, secret);
-				return secret;
-			} catch (ResponseResolveException e) {
-				throw this.parseException(response);
-			}
+		    String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
+		    String terminalKey=keyStore.getKey(terminalSn);
+		    String secret = terminalKey;
+		    try {
+    		    Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
+    		    secret = response.get(TerminalKey.TERMINAL_KEY).toString();
+		    } catch (IOException e1) {
+                logger.debug("possible network outage",e1);
+            }
+		    // 更新密钥
+		    dateMap.put(terminalSn, today);
+		    secretMap.put(terminalSn, secret);
+		    keyStore.setKey(terminalSn, secret);
+		    return secret;
 		}
 
         return secretMap.get(terminalSn);
