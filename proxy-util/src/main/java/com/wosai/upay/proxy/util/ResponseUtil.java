@@ -38,8 +38,7 @@ public class ResponseUtil {
 			Map<String,Object> response=(Map<String,Object>) result.get(Response.BIZ_RESPONSE);
 			if(response!=null
 				&&response.get(Response.RESULT_CODE)!=null
-		    	&&(response.get(Response.RESULT_CODE).equals(Response.RESPONSE_CODE_SUCEESS)
-		    	 ||response.get(Response.RESULT_CODE).equals(Response.RESPONSE_CODE_PRECREATE_SUCCESS))){
+		    	&&(response.get(Response.RESULT_CODE).toString().indexOf(Response.RESPONSE_CODE_SUCEESS)>=0)){
 				Map<String,Object> bizData=(Map<String,Object>) response.get(Response.DATA);
 	    		return bizData;
 			}
