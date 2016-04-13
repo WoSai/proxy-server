@@ -10,10 +10,15 @@ import com.wosai.upay.proxy.auto.model.ClientMerchant;
 import com.wosai.upay.proxy.auto.model.ClientStore;
 import com.wosai.upay.proxy.auto.model.ClientTerminal;
 import com.wosai.upay.proxy.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyObjectMap {
 
-    private Dao<Map<String, Object>> merchantMapDao;
+	private static final Logger logger = LoggerFactory.getLogger(ProxyObjectMap.class);
+
+
+	private Dao<Map<String, Object>> merchantMapDao;
     private Dao<Map<String, Object>> storeMapDao;
     private Dao<Map<String, Object>> terminalMapDao;
 
@@ -36,27 +41,31 @@ public class ProxyObjectMap {
     	
     	if(terminal==null){
     		if(store==null){
-    			//判断是否门店和终端都不存在。创建门店和终端
+				logger.debug("local mapping consult result: both store and terminal are null. Advice.CREATE_STORE_AND_TERMINAL");
+				//判断是否门店和终端都不存在。创建门店和终端
         		return Advice.CREATE_STORE_AND_TERMINAL;
     		}else{
-    			//判断是否门店存在但是终端不存在。创建终端。
+				logger.debug("local mapping consult result: terminal is null. Advice.CREATE_TERMINAL");
+				//判断是否门店存在但是终端不存在。创建终端。
     			return Advice.CREATE_TERMINAL;
     		}
     	}
     	
     	
     	if(store==null){
-    		//判断是否门店不存在但是终端存在。创建门店改变终端归属
+			logger.debug("local mapping consult result: store is null. Advice.CREATE_STORE_AND_MOVE_TERMINAL");
+			//判断是否门店不存在但是终端存在。创建门店改变终端归属
     		return Advice.CREATE_STORE_AND_MOVE_TERMINAL;
     	}
 
     	String tempStoreSn=terminal.get(ClientTerminal.CLIENT_STORE_SN).toString();
     	if(!StringUtil.equals(clientStoreSn, tempStoreSn)){
-    		//判断是否门店和终端都存在。需要改变终端归属
+			logger.debug("local mapping consult result: move terminal. Advice.MOVE_TERMINAL");
+			//判断是否门店和终端都存在。需要改变终端归属
     		return Advice.MOVE_TERMINAL;
     	}
-    	
-    	//判断是否门店和终端在映射表中存在，并且归属关系没有变化
+		logger.debug("local mapping consult result: 200 Okay. Advice.NOOP");
+		//判断是否门店和终端在映射表中存在，并且归属关系没有变化
         return Advice.NOOP;
     }
     
