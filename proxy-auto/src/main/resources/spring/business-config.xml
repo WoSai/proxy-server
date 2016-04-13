@@ -10,7 +10,7 @@ Data and Service layers
 			   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 			   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <context:property-placeholder location="classpath:spring/flavor-${shouqianba.flavor:default}.properties"/>
+  <context:property-placeholder location="classpath:spring/flavor-${upay.flavor:default}.properties"/>
 
   <!-- 辅助类型 -->
   <bean class="com.wosai.upay.helper.UpayMethodValidationPostProcessor"></bean>
@@ -32,14 +32,19 @@ Data and Service layers
       base-package="com.wosai.upay.proxy.auto.service"/>
 
   <!-- 注入JSONRPC服务依赖 -->
-  <bean class="com.googlecode.jsonrpc4j.spring.AutoJsonRpcClientProxyCreator">
+  <bean id="proxyExceptionResolver" class="com.wosai.upay.proxy.auto.service.ProxyExceptionResolver">
+  </bean>
+  
+  <bean class="com.wosai.upay.proxy.auto.service.ProxyAutoJsonRpcClientProxyCreator">
     <property name="baseUrl" value="${proxy.core.rpc.url}" />
     <property name="scanPackage" value="com.wosai.upay.proxy.core.service" />
+    <property name="exceptionResolver" ref="proxyExceptionResolver" />
   </bean>
 
-  <bean class="com.googlecode.jsonrpc4j.spring.AutoJsonRpcClientProxyCreator">
+  <bean class="com.wosai.upay.proxy.auto.service.ProxyAutoJsonRpcClientProxyCreator">
     <property name="baseUrl" value="${proxy.upay.rpc.url}" />
     <property name="scanPackage" value="com.wosai.upay.proxy.upay.service" />
+    <property name="exceptionResolver" ref="proxyExceptionResolver" />
   </bean>
 
 </beans>

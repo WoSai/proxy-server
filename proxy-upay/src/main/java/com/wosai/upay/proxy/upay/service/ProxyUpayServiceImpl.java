@@ -66,12 +66,8 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			Map<String, Object> response = upayApi.pay(terminalSn,
 			                                         terminalKey,
 			                                         request);
-			try {
-				return ResponseUtil.resolveUpay(response);
-			} catch (ResponseResolveException e) {
-				//转发解析错误
-				throw this.parseException(response);
-			}
+			
+			return response;
 			
 		}  catch (IOException e) {
 			//如果请求或获取处理结果超时
@@ -86,7 +82,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
 						){
 					//返回最新订单信息
-					return bizData;
+					return response;
 				}
 			} catch (ProxyUpayException e1) {
 				logger.debug("call pay > query Api timeout",e1);
@@ -100,33 +96,27 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 				logger.debug("pay sleep error",e1);
 			}
 
-			//再次查询订单状态
-			String status=null;
-			Map<String, Object> bizData=null;
 			try {
+				//再次查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				bizData=ResponseUtil.resolveUpay(response);
-				status=(String) bizData.get(Order.ORDER_STATUS);
+				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
+				String status=(String) bizData.get(Order.ORDER_STATUS);
+				
+				//判断是否已经交易成功
+				if(status!=null){
+					if(status.equals(Order.ORDER_STATUS_PAID)
+							||status.equals(Order.ORDER_STATUS_PAY_CANCELED)){
+						//返回最新订单信息
+						return response;
+					} else if (status.equals(Order.ORDER_STATUS_CREATED)){
+						//取消订单
+						return upayApi.cancel(terminalSn, terminalKey, request);
+					}
+				}
 			} catch (ProxyUpayException e1) {
 				logger.debug("call pay > query Api timeout",e1);
 			} catch (ResponseResolveException e1) {
 				logger.debug("resolve pay > query response faild",e1);
-			}
-
-			//判断是否已经交易成功
-			if(status!=null){
-				if(status.equals(Order.ORDER_STATUS_PAID)
-						||status.equals(Order.ORDER_STATUS_PAY_CANCELED)){
-					//返回最新订单信息
-					return bizData;
-				} else if (status.equals(Order.ORDER_STATUS_CREATED)){
-					try {
-						bizData=ResponseUtil.resolveUpay(upayApi.cancel(terminalSn, terminalKey, request));
-						return bizData;
-					} catch (ResponseResolveException e1) {
-						logger.debug("resolve pay > query > cancel response faild",e1);
-					}
-				}
 			}
 		}
 
@@ -145,12 +135,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			Map<String, Object> response = upayApi.precreate(terminalSn,
 			                                         terminalKey,
 			                                         request);
-			try {
-     				return ResponseUtil.resolveUpay(response);
-     			} catch (ResponseResolveException e) {
-     				//转发解析错误
-     				throw this.parseException(response);
-     			}
+			return response;
 		} catch (IOException e) {
 			//如果请求或获取处理结果超时
 			logger.debug("call precreate api timeout",e);
@@ -164,7 +149,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
 						){
 					//返回最新订单信息
-					return bizData;
+					return response;
 				}
 			} catch (ProxyUpayException e1) {
 				logger.debug("call pay > query Api timeout",e1);
@@ -188,13 +173,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			Map<String, Object> response = upayApi.refund(terminalSn,
 			                                         terminalKey,
 			                                         request);
-
-			try {
-     				return ResponseUtil.resolveUpay(response);
-     			} catch (ResponseResolveException e) {
-     				//转发解析错误
-     				throw this.parseException(response);
-     			}
+			return response;
 		} catch (IOException e) {
 			//如果请求或获取处理结果超时
 			logger.debug("call refund api timeout",e);
@@ -208,7 +187,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
 						){
 					//返回最新订单信息
-					return bizData;
+					return response;
 				}
 			} catch (ProxyUpayException e1) {
 				logger.debug("call pay > query Api timeout",e1);
@@ -229,11 +208,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
 		Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-		try {
-			return ResponseUtil.resolveUpay(response);
-		} catch (ResponseResolveException e1) {
-			throw this.parseException(response);
-		}
+		return response;
     }
 
     @Override
@@ -246,11 +221,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         Map<String, Object> response = upayApi.revoke(terminalSn,
 		                                         terminalKey,
 		                                         request);
-		try {
-			return ResponseUtil.resolveUpay(response);
-		} catch (ResponseResolveException e1) {
-			throw this.parseException(response);
-		}
+        return response;
     }
 
     @Override
@@ -263,12 +234,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         Map<String, Object> response = upayApi.cancel(terminalSn,
 		                                         terminalKey,
 		                                         request);
-        
-		try {
-			return ResponseUtil.resolveUpay(response);
-		} catch (ResponseResolveException e1) {
-			throw this.parseException(response);
-		}
+        return response;
     }
 
     

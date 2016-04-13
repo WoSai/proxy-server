@@ -30,7 +30,7 @@ public class ProxyCoreController {
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
-        return success(proxyService.createStore(params));
+        return proxyService.createStore(params);
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
@@ -43,14 +43,13 @@ public class ProxyCoreController {
     @RequestMapping(value="/store/get/{sn}", method=RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getStore(@PathVariable String sn) {
-        return success(proxyService.getStore(sn));
+        return proxyService.getStore(sn);
     }
 
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
-        proxyService.createTerminal(params);
-        return success();
+        return proxyService.createTerminal(params);
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
@@ -63,14 +62,13 @@ public class ProxyCoreController {
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {
-        proxyService.activateTerminal(params);
-        return success();
+        return proxyService.activateTerminal(params);
     }
 
     @RequestMapping(value="/terminal/get/{sn}", method=RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getTerminal(@PathVariable String sn) {
-        return success(proxyService.getTerminal(sn));
+        return proxyService.getTerminal(sn);
     }
 
     @SuppressWarnings("unchecked")

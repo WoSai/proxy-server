@@ -42,7 +42,11 @@ public class UpayApiFacade {
                                    @NotEmpty(message="终端密钥不能为空")
                                    String terminalKey,
                                    @PropNotEmpty.List({
-                                       @PropNotEmpty(Order.CLIENT_SN),
+                                       @PropNotEmpty(value=Order.CLIENT_SN,message="商户系统订单号不能为空"),
+                                       @PropNotEmpty(value=Order.TOTAL_AMOUNT,message="交易总金额不能为空"),
+                                       @PropNotEmpty(value=Order.DYNAMIC_ID,message="条码内容不能为空"),
+                                       @PropNotEmpty(value=Order.SUBJECT,message="交易简介不能为空"),
+                                       @PropNotEmpty(value=Order.OPERATOR,message="门店操作员不能为空")
                                    })
                                    Map<String, Object> request) throws IOException {
 
@@ -56,7 +60,10 @@ public class UpayApiFacade {
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
                                          @PropNotEmpty.List({
-                                             @PropNotEmpty(Order.CLIENT_SN),
+                                             @PropNotEmpty(value=Order.CLIENT_SN,message="商户系统订单号不能为空"),
+                                             @PropNotEmpty(value=Order.REFUND_AMOUNT,message="退款金额不能为空"),
+                                             @PropNotEmpty(value=Order.REFUND_REQUEST_NO,message="退款序列号不能为空"),
+                                             @PropNotEmpty(value=Order.OPERATOR,message="退款操作员不能为空")
                                          })
                                          Map<String, Object> request) throws IOException {
 
@@ -69,9 +76,6 @@ public class UpayApiFacade {
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         @PropNotEmpty.List({
-                                             @PropNotEmpty(Order.CLIENT_SN),
-                                         })
                                          Map<String, Object> request) throws UpayApiException {
 
     	try {
@@ -87,9 +91,6 @@ public class UpayApiFacade {
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         @PropNotEmpty.List({
-                                             @PropNotEmpty(Order.CLIENT_SN),
-                                         })
                                          Map<String, Object> request) throws UpayApiException {
 
     	try {
@@ -105,9 +106,6 @@ public class UpayApiFacade {
                                          String terminalSn,
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
-                                         @PropNotEmpty.List({
-                                             @PropNotEmpty(Order.CLIENT_SN),
-                                         })
                                          Map<String, Object> request) throws UpayApiException {
 
     	try {
@@ -124,7 +122,11 @@ public class UpayApiFacade {
                                          @NotEmpty(message="终端密钥不能为空")
                                          String terminalKey,
                                          @PropNotEmpty.List({
-                                             @PropNotEmpty(Order.CLIENT_SN),
+                                             @PropNotEmpty(value=Order.CLIENT_SN,message="商户系统订单号不能为空"),
+                                             @PropNotEmpty(value=Order.TOTAL_AMOUNT,message="交易总金额不能为空"),
+                                             @PropNotEmpty(value=Order.PAYWAY,message="支付方式不能为空"),
+                                             @PropNotEmpty(value=Order.SUBJECT,message="交易简介不能为空"),
+                                             @PropNotEmpty(value=Order.OPERATOR,message="门店操作员不能为空")
                                          })
                                          Map<String, Object> request) throws IOException {
 

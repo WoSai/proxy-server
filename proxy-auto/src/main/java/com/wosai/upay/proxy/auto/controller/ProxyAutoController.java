@@ -33,7 +33,7 @@ public class ProxyAutoController {
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
-        return success(proxyService.createStore(params));
+        return proxyService.createStore(params);
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
@@ -47,7 +47,7 @@ public class ProxyAutoController {
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
-        return success(proxyService.createTerminal(params));
+        return proxyService.createTerminal(params);
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
@@ -60,55 +60,55 @@ public class ProxyAutoController {
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {
-        return success(proxyService.activateTerminal(params));
+        return proxyService.activateTerminal(params);
     }
 
     // 交易
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> pay(@RequestBody Map<String, Object> params) {
-        return success(proxyService.pay(params));
+        return proxyService.pay(params);
     }
 
     @RequestMapping(value="/preCreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
-        return success(proxyService.precreate(params));
+        return proxyService.precreate(params);
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> query(@RequestBody Map<String, Object> params) {
-        return success(proxyService.query(params));
+        return proxyService.query(params);
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> refund(@RequestBody Map<String, Object> params) {
-        return success(proxyService.refund(params));
+        return proxyService.refund(params);
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> revoke(@RequestBody Map<String, Object> params) {
-        return success(proxyService.revoke(params));
+        return proxyService.revoke(params);
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> cancel(@RequestBody Map<String, Object> params) {
-        return success(proxyService.cancel(params));
+        return proxyService.cancel(params);
     }
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success(Object serviceResult) {
-        return CollectionUtil.hashMap("result", "200",
+        return CollectionUtil.hashMap("result_code", "200",
                                       "data", serviceResult);
     }
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success() {
-        return CollectionUtil.hashMap("result", "200");
+        return CollectionUtil.hashMap("result_code", "200");
     }
 
     @SuppressWarnings("unchecked")
@@ -121,7 +121,7 @@ public class ProxyAutoController {
                 sb.append("\n");
             sb.append(violation.getMessage());
         }
-        return CollectionUtil.hashMap("result", "400",
+        return CollectionUtil.hashMap("result_code", "400",
                                       "error_code", "INVALID_PARAMS",
                                       "error_message", sb.toString());
 
@@ -131,7 +131,7 @@ public class ProxyAutoController {
     @ExceptionHandler(ProxyAutoBizException.class)
     @ResponseBody
     public Map<String, Object> handleBizException(ProxyAutoBizException ex) {
-        return CollectionUtil.hashMap("result", "500",
+        return CollectionUtil.hashMap("result_code", "500",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -141,7 +141,7 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> handleSystemException(ProxyAutoSystemException ex) {
         logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result_code", "-1",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -151,7 +151,7 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> handleUnknownError(Throwable ex) {
         logger.error("Unknown system error.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result_code", "-1",
                                       "error_code",  "UNKNOWN_SYSTEM_ERROR",
                                       "error_message", ex.getMessage());
     }
@@ -163,7 +163,7 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> handleCoreSystemException(ProxyCoreSystemException ex) {
         logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result_code", "-1",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -175,7 +175,7 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> handleUpaySystemException(ProxyUpaySystemException ex) {
         logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result_code", "-1",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }

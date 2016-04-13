@@ -30,37 +30,37 @@ public class ProxyUpayController {
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> pay(@RequestBody Map<String, Object> params) {
-        return success(proxyService.pay(params));
+        return proxyService.pay(params);
     }
 
     @RequestMapping(value="/precreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
-        return success(proxyService.precreate(params));
+        return proxyService.precreate(params);
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> query(@RequestBody Map<String, Object> params) {
-        return success(proxyService.query(params));
+        return proxyService.query(params);
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> refund(@RequestBody Map<String, Object> params) {
-        return success(proxyService.refund(params));
+        return proxyService.refund(params);
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> revoke(@RequestBody Map<String, Object> params) {
-        return success(proxyService.revoke(params));
+        return proxyService.revoke(params);
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> cancel(@RequestBody Map<String, Object> params) {
-        return success(proxyService.cancel(params));
+        return proxyService.cancel(params);
     }
 
     @RequestMapping(value="/init", method=RequestMethod.POST, produces="application/json")

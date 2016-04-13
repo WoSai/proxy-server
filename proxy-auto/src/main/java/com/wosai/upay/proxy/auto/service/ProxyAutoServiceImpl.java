@@ -1,18 +1,13 @@
 package com.wosai.upay.proxy.auto.service;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.googlecode.jsonrpc4j.ErrorResolver;
-import com.googlecode.jsonrpc4j.ExceptionResolver;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
+import com.wosai.upay.proxy.auto.exception.ProxyCoreDependencyException;
 import com.wosai.upay.proxy.auto.model.ClientOrder;
 import com.wosai.upay.proxy.auto.model.ClientOrderCancel;
 import com.wosai.upay.proxy.auto.model.ClientOrderPay;
@@ -26,11 +21,13 @@ import com.wosai.upay.proxy.auto.service.ProxyObjectMap.Advice;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
+import com.wosai.upay.proxy.exception.ResponseResolveException;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
+import com.wosai.upay.proxy.util.ResponseUtil;
 
 @Service
-public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,ErrorResolver {
+public class ProxyAutoServiceImpl implements ProxyAutoService {
 
     @Autowired
     private ProxyUpayService proxyUpay;
@@ -89,7 +86,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	for(ClientOrderRefund value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	return proxyUpay.refund(request);
+    	return proxyUpay.refund(param);
     }
     @Override
     public Map<String, Object> revoke(Map<String, Object> request)
@@ -102,7 +99,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	for(ClientOrderRevoke value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	return proxyUpay.revoke(request);
+    	return proxyUpay.revoke(param);
     }
     @Override
     public Map<String, Object> cancel(Map<String, Object> request)
@@ -115,7 +112,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	for(ClientOrderCancel value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	return proxyUpay.cancel(request);
+    	return proxyUpay.cancel(param);
     }
     @Override
     public Map<String, Object> createStore(Map<String, Object> request)
@@ -152,11 +149,16 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     public Map<String, Object> activateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
     	Map<String, Object> response=proxyCore.activateTerminal(request);
-    	String terminalSn=response.get(TerminalKey.TERMINAL_SN).toString();
-    	String terminalKey=response.get(TerminalKey.TERMINAL_KEY).toString();
-    	proxyUpay.init(terminalSn, terminalKey);
-    	//服务端入库
-        return response;
+    	try{
+	    	Map<String, Object> terminal=ResponseUtil.resolveCore(response);
+	    	String terminalSn=terminal.get(TerminalKey.TERMINAL_SN).toString();
+	    	String terminalKey=terminal.get(TerminalKey.TERMINAL_KEY).toString();
+	    	proxyUpay.init(terminalSn, terminalKey);
+	    	//服务端入库
+	        return response;
+    	} catch (ResponseResolveException e) {
+			throw new ProxyCoreDependencyException("activate terminal faild");
+		}
         
     }
     @Override
@@ -168,9 +170,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     /**
      * 检查本地映射，并做相关数据同步
      * @param request
+     * @throws ResponseResolveException 
      */
     @SuppressWarnings("unchecked")
-    public void checkObjectMap(Map<String,Object> request){
+    public void checkObjectMap(Map<String,Object> request) throws ProxyAutoException {
+	
 		//获取交易参数中的门店和终端信息
 		Map<String,Object> clientTerminal=(Map<String, Object>)request.get(ClientOrder.CLIENT_TERMINAL);
 		Map<String,Object> clientStore=(Map<String, Object>)request.get(ClientOrder.CLIENT_STORE);
@@ -181,13 +185,14 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	//转成服务端接口所需参数
 		Map<String,Object> terminal=this.parseTerminalAutoToCore(clientTerminal);
 		Map<String,Object> store=this.parseTerminalAutoToCore(clientStore);
+    	
     	//本地映射校验
     	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
     	switch (advice) {
 		case CREATE_TERMINAL:
-			Map<String,Object> response=this.createTerminal(terminal);
+			terminal=this.parseAndCreateTerminal(terminal);
 			//获取返回结果的终端标识
-			terminalSn=response.get(Terminal.SN).toString();
+			terminalSn=terminal.get(Terminal.SN).toString();
 	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 		case MOVE_TERMINAL:
@@ -199,18 +204,18 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
 			break;
 		case CREATE_STORE_AND_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
-			response=this.createStore(store);
-			storeSn=response.get(Store.SN).toString();
+			store=this.parseAndCreateStore(store);
+			storeSn=store.get(Store.SN).toString();
 			
 			//调用服务端创建终端接口，并获取返回结果的终端标识
-			response=this.createTerminal(terminal);
-			terminalSn=response.get(Terminal.SN).toString();
+			terminal=this.parseAndCreateTerminal(terminal);
+			terminalSn=terminal.get(Terminal.SN).toString();
 	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 		case CREATE_STORE_AND_MOVE_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
-			response=this.createStore(store);
-			storeSn=response.get(Store.SN).toString();
+			store=this.parseAndCreateStore(store);
+			storeSn=store.get(Store.SN).toString();
 			
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
@@ -224,9 +229,40 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
 		}
     	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
-    	request.put(ClientOrderPay.DEVICE_ID.toString(), clientTerminal.get(ClientOrderTerminal.DEVICE_ID.toString()));
     }
+    
+    /**
+     * 创建并解析门店数据
+     * @param request
+     * @return
+     * @throws ProxyAutoException
+     */
+    private Map<String,Object> parseAndCreateStore(Map<String,Object> request) throws ProxyAutoException {
 
+    	Map<String,Object> response=this.createStore(request);
+    	try {
+			return ResponseUtil.resolveCore(response);
+		} catch (ResponseResolveException e) {
+			throw new ProxyCoreDependencyException("create store faild");
+		}
+    }
+    
+    /**
+     * 创建并解析门店数据
+     * @param request
+     * @return
+     * @throws ProxyAutoException
+     */
+    private Map<String,Object> parseAndCreateTerminal(Map<String,Object> request) throws ProxyAutoException {
+
+    	Map<String,Object> response=this.createTerminal(request);
+    	try {
+			return ResponseUtil.resolveCore(response);
+		} catch (ResponseResolveException e) {
+			throw new ProxyCoreDependencyException("create terminal faild");
+		}
+    }
+    
     /**
      * 解析auto的门店参数转化成core需要的门店参数
      * @param request
@@ -254,6 +290,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	}
     	return dest;
     }
+
     
     /**
      * map转存
@@ -268,18 +305,4 @@ public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,
     	}
     	
     }
-    
-
-	@Override
-	public JsonError resolveError(Throwable t, Method method,
-			List<JsonNode> arguments) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Throwable resolveException(ObjectNode response) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

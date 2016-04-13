@@ -17,8 +17,7 @@
 		"method":"post",
 		"param":{
 			"client_terminal":{
-				"client_sn":"1",
-				"device_id":"1"
+				"client_sn":"1"
 			},
 			"client_store":{
 				"client_sn":"1"
@@ -27,7 +26,8 @@
 			"total_amount":"1",
 			"dynamic_id":"2",
 			"subject":"测试订单",
-			"operator":"操作员"
+			"operator":"操作员",
+			"device_id":"1"
 		}
 	},
 	{
@@ -46,7 +46,8 @@
 			"client_sn":"12345677767776",
 			"refund_amount":"1",
 			"refund_request_no":"2",
-			"operator":"操作员"
+			"operator":"操作员",
+			"device_id":"1"
 		}
 	},
 	{
@@ -62,7 +63,8 @@
 				"client_sn":"1"
 			},
 			"sn":"12345677767776",
-			"client_sn":"12345677767776"
+			"client_sn":"12345677767776",
+			"device_id":"1"
 		}
 	},
 	{
@@ -78,7 +80,8 @@
 				"client_sn":"1"
 			},
 			"sn":"12345677767776",
-			"client_sn":"12345677767776"
+			"client_sn":"12345677767776",
+			"device_id":"1"
 		}
 	},
 	{
@@ -97,7 +100,8 @@
 			"total_amount":"1",
 			"payway":"1",
 			"subject":"测试订单",
-			"operator":"操作员"
+			"operator":"操作员",
+			"device_id":"1"
 		}
 	}
 	]
