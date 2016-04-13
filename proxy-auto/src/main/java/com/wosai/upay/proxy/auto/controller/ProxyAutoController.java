@@ -70,7 +70,7 @@ public class ProxyAutoController {
         return success(proxyService.pay(params));
     }
 
-    @RequestMapping(value="/precreate", method=RequestMethod.POST, produces="application/json")
+    @RequestMapping(value="/preCreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
         return success(proxyService.precreate(params));

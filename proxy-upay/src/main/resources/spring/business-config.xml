@@ -27,8 +27,6 @@ Data and Service layers
   </bean>
   <bean class="com.wosai.upay.httpclient.UpayHttpClient"/>
   <bean class="com.wosai.upay.proxy.upay.service.UpayApiFacade"
-   p:vendorSn="${vendor.sn}"
-   p:vendorKey="${vendor.key}"
    p:upayApiDomain="${upay.api.domain}"
    p:payApiUrl="${upay.api.pay.url}"
    p:refundApiUrl="${upay.api.refund.url}"

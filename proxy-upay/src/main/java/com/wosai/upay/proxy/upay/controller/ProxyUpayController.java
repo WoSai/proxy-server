@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayBizException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpaySystemException;
+import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
 
 @Controller
@@ -42,6 +43,33 @@ public class ProxyUpayController {
     @ResponseBody
     public Map<String, Object> query(@RequestBody Map<String, Object> params) {
         return success(proxyService.query(params));
+    }
+
+    @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> refund(@RequestBody Map<String, Object> params) {
+        return success(proxyService.refund(params));
+    }
+
+    @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> revoke(@RequestBody Map<String, Object> params) {
+        return success(proxyService.revoke(params));
+    }
+
+    @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> cancel(@RequestBody Map<String, Object> params) {
+        return success(proxyService.cancel(params));
+    }
+
+    @RequestMapping(value="/init", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> init(@RequestBody Map<String, Object> params) {
+    	String terminalSn=params.get(TerminalKey.TERMINAL_SN).toString(); 
+    	String secret=params.get(TerminalKey.TERMINAL_KEY).toString(); 
+    	proxyService.init(terminalSn,secret);
+    	return success();
     }
 
     @SuppressWarnings("unchecked")

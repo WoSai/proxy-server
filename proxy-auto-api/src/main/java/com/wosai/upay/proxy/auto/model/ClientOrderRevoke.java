@@ -4,6 +4,7 @@ public enum ClientOrderRevoke {
 
 	TERMINAL_SN("terminal_sn"),
 
+	DEVICE_ID("device_id"),
 	SN("sn"),
 	CLIENT_SN("client_sn");
     

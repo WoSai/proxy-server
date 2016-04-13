@@ -12,5 +12,7 @@ public abstract class Response {
 	
 	public static final String RESULT_CODE_SUCEESS="200";
 	public static final String RESPONSE_CODE_SUCEESS="SUCCESS";
+	
+	public static final String RESPONSE_CODE_PRECREATE_SUCCESS="PRECREATE_SUCCESS";
 
 }

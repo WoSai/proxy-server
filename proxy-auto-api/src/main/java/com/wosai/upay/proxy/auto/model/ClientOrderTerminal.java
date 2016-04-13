@@ -1,7 +1,8 @@
 package com.wosai.upay.proxy.auto.model;
 
 public enum ClientOrderTerminal {
-	
+
+	DEVICE_ID("device_id",null),
 	CLIENT_SN("client_sn",null),
     SN("sn",null);
 	// TODO 待补充

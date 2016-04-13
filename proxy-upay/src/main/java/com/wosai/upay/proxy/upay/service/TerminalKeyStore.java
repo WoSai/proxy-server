@@ -25,9 +25,13 @@ public class TerminalKeyStore {
     @Transactional
     public void setKey(@NotEmpty(message="终端号不能为空")String terminalSn,
                        @NotEmpty(message="密钥不能为空")String secret) {
-
-        Map<String, Object> existing = terminalKeyDao.getPart(terminalSn, Collections.singleton(TerminalKey.SECRET));
-        if(existing != null) {
+    	Map<String, Object> existing = null;
+    	try{
+    		existing = terminalKeyDao.getPart(terminalSn, Collections.singleton(TerminalKey.SECRET));
+    	}catch(Exception e){
+    		
+    	}
+    	if(existing != null) {
             existing.put(TerminalKey.SECRET, secret);
             terminalKeyDao.updatePart(existing);
         }else{

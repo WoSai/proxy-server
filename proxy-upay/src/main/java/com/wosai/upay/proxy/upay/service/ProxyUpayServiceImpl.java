@@ -67,10 +67,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			                                         terminalKey,
 			                                         request);
 			try {
-				return ResponseUtil.resolve(response);
+				return ResponseUtil.resolveUpay(response);
 			} catch (ResponseResolveException e) {
 				//转发解析错误
-				this.parseException(response);
+				throw this.parseException(response);
 			}
 			
 		}  catch (IOException e) {
@@ -79,7 +79,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve(response);
+				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -105,7 +105,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			Map<String, Object> bizData=null;
 			try {
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				bizData=ResponseUtil.resolve(response);
+				bizData=ResponseUtil.resolveUpay(response);
 				status=(String) bizData.get(Order.ORDER_STATUS);
 			} catch (ProxyUpayException e1) {
 				logger.debug("call pay > query Api timeout",e1);
@@ -121,7 +121,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 					return bizData;
 				} else if (status.equals(Order.ORDER_STATUS_CREATED)){
 					try {
-						bizData=ResponseUtil.resolve(upayApi.cancel(terminalSn, terminalKey, request));
+						bizData=ResponseUtil.resolveUpay(upayApi.cancel(terminalSn, terminalKey, request));
 						return bizData;
 					} catch (ResponseResolveException e1) {
 						logger.debug("resolve pay > query > cancel response faild",e1);
@@ -146,10 +146,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			                                         terminalKey,
 			                                         request);
 			try {
-     				return ResponseUtil.resolve(response);
+     				return ResponseUtil.resolveUpay(response);
      			} catch (ResponseResolveException e) {
      				//转发解析错误
-     				this.parseException(response);
+     				throw this.parseException(response);
      			}
 		} catch (IOException e) {
 			//如果请求或获取处理结果超时
@@ -157,7 +157,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve(response);
+				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -190,10 +190,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			                                         request);
 
 			try {
-     				return ResponseUtil.resolve(response);
+     				return ResponseUtil.resolveUpay(response);
      			} catch (ResponseResolveException e) {
      				//转发解析错误
-     				this.parseException(response);
+     				throw this.parseException(response);
      			}
 		} catch (IOException e) {
 			//如果请求或获取处理结果超时
@@ -201,7 +201,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			try {
 				//查询订单状态
 				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve(response);
+				Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
 				String status=(String) bizData.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
 				if(status!=null&&
@@ -230,7 +230,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalKey = this.getKey(terminalSn,request);
 		Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
 		try {
-			return ResponseUtil.resolve(response);
+			return ResponseUtil.resolveUpay(response);
 		} catch (ResponseResolveException e1) {
 			throw this.parseException(response);
 		}
@@ -247,7 +247,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		                                         terminalKey,
 		                                         request);
 		try {
-			return ResponseUtil.resolve(response);
+			return ResponseUtil.resolveUpay(response);
 		} catch (ResponseResolveException e1) {
 			throw this.parseException(response);
 		}
@@ -265,7 +265,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		                                         request);
         
 		try {
-			return ResponseUtil.resolve(response);
+			return ResponseUtil.resolveUpay(response);
 		} catch (ResponseResolveException e1) {
 			throw this.parseException(response);
 		}
@@ -281,7 +281,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     	try {
 			//查询订单状态
 			Map<String, Object> response = this.query(request);
-			Map<String, Object> bizData=ResponseUtil.resolve(response);
+			Map<String, Object> bizData=ResponseUtil.resolveUpay(response);
 			String status=(String) bizData.get(Order.ORDER_STATUS);
 			//判断是否已经交易成功
 			if(status!=null&&
@@ -307,27 +307,36 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		String resultCode=(String) response.get(Response.RESULT_CODE);
 		String errorCode=(String) response.get(Response.ERROR_CODE);
 		String errorMessage=(String) response.get(Response.ERROR_MESSAGE);
+		if(resultCode.equals(Response.RESULT_CODE_SUCEESS)){
+			Map<String, Object> bizData=(Map<String, Object>)response.get(Response.BIZ_RESPONSE);
+			resultCode=bizData.get(Response.RESULT_CODE).toString();
+			errorCode=bizData.get(Response.ERROR_CODE).toString();
+			errorMessage=bizData.get(Response.ERROR_MESSAGE).toString();
+		}
 		return new ProxyUpayResolveException(resultCode,errorCode,errorMessage);
 	}
 	
 	/**
-	 * 封装重复代码，实现每天第一次签到逻辑(后续版本迁移到core中，改成自动签到)
+	 * 封装重复代码，实现每天第一次签到逻辑
 	 * @param terminalSn
 	 * @return
 	 * @throws IOException 
 	 */
 	public String getKey(String terminalSn,Map<String,Object> request) throws ProxyUpayResolveException{
-		String today=sdf.format(Calendar.getInstance());
+		String today=sdf.format(Calendar.getInstance().getTime());
 		String date=dateMap.get(terminalSn);
-		if(date==null||date.equals(today)){
+		if(date==null||!date.equals(today)){
 			String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
-			Map<String,Object> response = upayApi.checkin(terminalSn, deviceId);
+			String terminalKey=keyStore.getKey(terminalSn);
+			Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
 			try {
-				Map<String, Object> bizData = ResponseUtil.resolve(response);
-				String secret = bizData.get(bizData.get(TerminalKey.TERMINAL_SN)).toString();
+				Map<String, Object> bizData = ResponseUtil.resolveCore(response);
+				String secret = bizData.get(TerminalKey.TERMINAL_KEY).toString();
 
-				dateMap.put(terminalSn, date);
+		        // 更新密钥
+				dateMap.put(terminalSn, today);
 				secretMap.put(terminalSn, secret);
+		        keyStore.setKey(terminalSn, secret);
 				return secret;
 			} catch (ResponseResolveException e) {
 				throw this.parseException(response);

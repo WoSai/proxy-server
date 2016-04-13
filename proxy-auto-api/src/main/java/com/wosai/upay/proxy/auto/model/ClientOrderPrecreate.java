@@ -3,7 +3,8 @@ package com.wosai.upay.proxy.auto.model;
 public enum ClientOrderPrecreate {
 
 	TERMINAL_SN("terminal_sn"),
-	
+
+	DEVICE_ID("device_id"),
 	CLIENT_SN("client_sn"),
 	TOTAL_AMOUNT("total_amount"),
 	PAYWAY("payway"),

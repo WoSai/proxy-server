@@ -1,11 +1,17 @@
 package com.wosai.upay.proxy.auto.service;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.googlecode.jsonrpc4j.ErrorResolver;
+import com.googlecode.jsonrpc4j.ExceptionResolver;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
 import com.wosai.upay.proxy.auto.model.ClientOrder;
 import com.wosai.upay.proxy.auto.model.ClientOrderCancel;
@@ -20,10 +26,11 @@ import com.wosai.upay.proxy.auto.service.ProxyObjectMap.Advice;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
+import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
 
 @Service
-public class ProxyAutoServiceImpl implements ProxyAutoService {
+public class ProxyAutoServiceImpl implements ProxyAutoService,ExceptionResolver,ErrorResolver {
 
     @Autowired
     private ProxyUpayService proxyUpay;
@@ -144,9 +151,12 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     @Override
     public Map<String, Object> activateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
-    	
+    	Map<String, Object> response=proxyCore.activateTerminal(request);
+    	String terminalSn=response.get(TerminalKey.TERMINAL_SN).toString();
+    	String terminalKey=response.get(TerminalKey.TERMINAL_KEY).toString();
+    	proxyUpay.init(terminalSn, terminalKey);
     	//服务端入库
-        return proxyCore.activateTerminal(request);
+        return response;
         
     }
     @Override
@@ -178,13 +188,14 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			Map<String,Object> response=this.createTerminal(terminal);
 			//获取返回结果的终端标识
 			terminalSn=response.get(Terminal.SN).toString();
+	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 		case MOVE_TERMINAL:
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
-			terminal.put(ClientOrderTerminal.SN.toString(), terminalSn);
 			//根据服务端的sn码，修改服务端的终端信息
 			this.updateTerminal(terminal);
+	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 		case CREATE_STORE_AND_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
@@ -194,6 +205,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			//调用服务端创建终端接口，并获取返回结果的终端标识
 			response=this.createTerminal(terminal);
 			terminalSn=response.get(Terminal.SN).toString();
+	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 		case CREATE_STORE_AND_MOVE_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
@@ -202,15 +214,17 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
-			terminal.put(ClientOrderTerminal.SN.toString(), terminalSn);
 			//根据服务端的sn码，修改服务端的终端信息
 			this.updateTerminal(terminal);
+	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
 			break;
 
 		default:
-			break;
+			//获取服务端的sn码
+			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
 		}
-    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+    	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
+    	request.put(ClientOrderPay.DEVICE_ID.toString(), clientTerminal.get(ClientOrderTerminal.DEVICE_ID.toString()));
     }
 
     /**
@@ -249,8 +263,23 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
      * @param destKey
      */
     public void transferMap(Map<String,Object> src,Map<String,Object> dest,String srcKey,String destKey){
-    	assert(src!=null&&dest!=null&&srcKey!=null&&destKey!=null&&src.get(srcKey)!=null);
+    	if(src!=null&&dest!=null&&srcKey!=null&&destKey!=null&&src.get(srcKey)!=null){
+        	dest.put(destKey, src.get(srcKey));
+    	}
     	
-    	dest.put(destKey, src.get(srcKey));
     }
+    
+
+	@Override
+	public JsonError resolveError(Throwable t, Method method,
+			List<JsonNode> arguments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Throwable resolveException(ObjectNode response) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
