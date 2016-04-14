@@ -285,7 +285,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	private String getKey(String terminalSn,Map<String,Object> request) {
 		String today=sdf.format(Calendar.getInstance().getTime());
 		String date=dateMap.get(terminalSn);
+		logger.debug("getKey date: " + date);
+
 		if(date==null||!date.equals(today)){
+			logger.info("getKey and the key need to update");
 		    String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
 		    String terminalKey=keyStore.getKey(terminalSn);
 		    String secret = terminalKey;
@@ -301,7 +304,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		    keyStore.setKey(terminalSn, secret);
 		    return secret;
 		}
-
+		logger.debug("getKey from the cache.");
         return secretMap.get(terminalSn);
 		
 
