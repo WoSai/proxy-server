@@ -12,7 +12,7 @@
 	
   </head>
   <body ng-app="app" ng-controller="load" ng-data-http="result get proxy-auto/api/test">
-		
+
 	<div class="jm-form" ng-repeat="request in result.data">
 		<ul>
 			<li>{{$index+1}}.{{request.title}}</li>

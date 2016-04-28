@@ -1,5 +1,6 @@
 package com.wosai.upay.proxy.upay.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,11 +31,12 @@ public class UpayApiFacade {
     private String revokeApiUrl;
     private String precreateApiUrl;
     private String checkinApiUrl;
+    private String uploadLogApiUrl;
     
     private long failedWaitTime=30000;
 
     @Autowired
-    private UpayHttpClient client;
+    private RawUpayHttpClient client;
 
     public Map<String, Object> pay(@NotEmpty(message="终端号不能为空")
                                    String terminalSn,
@@ -135,6 +137,17 @@ public class UpayApiFacade {
     	String url=new StringBuilder(upayApiDomain).append(checkinApiUrl).toString();
     	return client.call(terminalSn, terminalKey, url, request);
     }
+    
+    public Map<String, Object> uploadLog(@NotEmpty(message="终端号不能为空")
+									   String terminalSn,
+									   @NotEmpty(message="终端密钥不能为空")
+									   String terminalKey,
+                                       @NotEmpty(message="日志内容不能为空")
+                                       String content) throws IOException {
+        // 直接返回支付网关的结果
+    	String url=new StringBuilder(upayApiDomain).append(uploadLogApiUrl).toString();
+    	return client.call(terminalSn, terminalKey, url, content);
+    }
 
 
     public void setUpayApiDomain(String upayApiDomain) {
@@ -165,7 +178,7 @@ public class UpayApiFacade {
 		this.precreateApiUrl = precreateApiUrl;
 	}
 
-	public void setClient(UpayHttpClient client) {
+	public void setClient(RawUpayHttpClient client) {
 		this.client = client;
 	}
 
@@ -179,6 +192,10 @@ public class UpayApiFacade {
 
 	public void setCheckinApiUrl(String checkinApiUrl) {
 		this.checkinApiUrl = checkinApiUrl;
+	}
+
+	public void setUploadLogApiUrl(String uploadLogApiUrl) {
+		this.uploadLogApiUrl = uploadLogApiUrl;
 	}
 
 }

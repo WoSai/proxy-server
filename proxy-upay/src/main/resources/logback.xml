@@ -40,12 +40,13 @@
 
     <root level="debug">
         <appender-ref ref="console"/>
+        <appender-ref ref="fileAppender"/>
     </root>
 
 	<logger name="org.springframework.remoting.support.RemoteInvocationTraceInterceptor" level="error"/>
 
     <logger name="com.wosai.upay.proxy" level="trace" additivity="true">
-    	<appender-ref ref="file"/>
+    	<appender-ref ref="fileAppender"/>
     </logger>
 
 </configuration>

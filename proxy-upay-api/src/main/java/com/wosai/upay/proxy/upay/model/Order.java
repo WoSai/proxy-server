@@ -1,6 +1,8 @@
 package com.wosai.upay.proxy.upay.model;
 
 public abstract class Order {
+    public static final String CLIENT_TERMINAL = "client_terminal";
+    
     public static final String CLIENT_SN = "client_sn";
     public static final String TERMINAL_SN = "terminal_sn";
     public static final String SN = "sn";
@@ -28,5 +30,8 @@ public abstract class Order {
     public static final String ORDER_STATUS_CREATED = "CREATED"; 
     public static final String ORDER_STATUS_PAID = "PAID"; 
     public static final String ORDER_STATUS_PAY_CANCELED = "PAY_CANCELED"; 
+    
+    //日志
+    public static final String ORDER_LOG = "log";
 
 }

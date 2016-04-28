@@ -22,5 +22,6 @@ public interface ProxyAutoService {
     void updateTerminal(Map<String, Object> request) throws ProxyAutoException;
     Map<String, Object> getTerminal(String sn) throws ProxyAutoException;
 	Map<String, Object> activateTerminal(Map<String, Object> request) throws ProxyAutoException;
+	void uploadLog() throws ProxyAutoException;
 	
 }

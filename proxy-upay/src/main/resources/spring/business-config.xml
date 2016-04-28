@@ -35,6 +35,7 @@ Data and Service layers
    p:revokeApiUrl="${upay.api.revoke.url}"
    p:precreateApiUrl="${upay.api.precreate.url}"
    p:checkinApiUrl="${upay.api.checkin.url}"
+   p:uploadLogApiUrl="${upay.api.uploadLog.url}"
    />
 
   <!-- JDBC -->                     

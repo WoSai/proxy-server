@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import com.wosai.upay.proxy.exception.BizResponseResolveException;
 import com.wosai.upay.proxy.exception.ResponseResolveException;
-import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayKeyStoreException;
 import com.wosai.upay.proxy.upay.exception.UpayApiException;
@@ -43,6 +42,8 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     
     private static final Map<String,String> secretMap=new HashMap<String,String>();
     private static final Map<String,String> dateMap=new HashMap<String,String>();
+    private static final Map<String,Integer> timerMap=new HashMap<String,Integer>();
+    
     
     private static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 
@@ -274,6 +275,24 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         }
     }
 
+
+    @Override
+    public Map<String, Object> uploadLog(Map<String, Object> request)
+            throws ProxyUpayException {
+        String terminalSn = (String)request.get(Order.TERMINAL_SN);
+        String terminalKey = this.getKey(terminalSn,request);
+        
+        String log = (String)request.get(Order.ORDER_LOG);
+        try {
+            Map<String, Object> response = upayApi.uploadLog(terminalSn,
+    		                                         terminalKey,
+    		                                         log);
+            return response;
+        } catch (IOException e1) {
+            logger.debug("possible network outage",e1);
+            throw new UpayApiException("failed to uploadLog");
+        }
+    }
     
 
 	/**
@@ -282,19 +301,21 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	 * @return
 	 * @throws IOException 
 	 */
-	private String getKey(String terminalSn,Map<String,Object> request) {
+	private synchronized String getKey(String terminalSn,Map<String,Object> request) {
 		String today=sdf.format(Calendar.getInstance().getTime());
 		String date=dateMap.get(terminalSn);
 		logger.debug("getKey date: " + date);
-
+		//判断今天是否签到过了
 		if(date==null||!date.equals(today)){
 			logger.info("getKey and the key need to update");
 		    String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
 		    String terminalKey=keyStore.getKey(terminalSn);
 		    String secret = terminalKey;
 		    try {
+		    	logger.debug(terminalSn+" is signing ");
     		    Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
     		    secret = response.get(TerminalKey.TERMINAL_KEY).toString();
+		    	logger.debug(terminalSn+"' sign is "+secret);
 		    } catch (IOException e1) {
                 logger.debug("possible network outage",e1);
             }

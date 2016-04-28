@@ -1,11 +1,16 @@
 package com.wosai.upay.proxy.auto.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wosai.upay.proxy.auto.exception.ParameterValidationException;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
 import com.wosai.upay.proxy.auto.exception.ProxyCoreDependencyException;
 import com.wosai.upay.proxy.auto.exception.ProxyUpayDependencyException;
@@ -24,13 +29,17 @@ import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
 import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
+import com.wosai.upay.proxy.upay.model.Order;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
-import com.wosai.upay.proxy.util.ResponseUtil;
+import com.wosai.upay.proxy.util.ZipUtil;
 
 @Service
 public class ProxyAutoServiceImpl implements ProxyAutoService {
+	
+    private static final Logger logger = LoggerFactory.getLogger(ProxyAutoServiceImpl.class); 
 
     @Autowired
     private ProxyUpayService proxyUpay;
@@ -38,6 +47,8 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     private ProxyCoreService proxyCore;
     @Autowired
     private ProxyObjectMap theMap;
+    @Autowired
+    private LogService logService; 
 
     @Override
     public Map<String, Object> pay(Map<String, Object> request)
@@ -213,6 +224,49 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 
     }
 
+	@Override
+	public void uploadLog() throws ProxyAutoException {
+		String logDir=logService.getLogDir();
+		File file=new File(logDir);
+		if(!file.exists()){
+			throw new ParameterValidationException(new StringBuilder(logDir).append(" not exists. ").toString());
+		}
+		if(!file.isDirectory()){
+			throw new ParameterValidationException(new StringBuilder(logDir).append(" not directory. ").toString());
+		}
+		//遍历需要上传的日志文件夹下的日志文件
+		File[] logs=file.listFiles();
+		for(File log:logs) {
+			try {
+
+				logger.debug(new StringBuilder(log.getName()).append(" is compressing.").toString());
+				
+				//获取文件的压缩内容
+				String content = ZipUtil.zipByFile(log);
+		        
+		        //组织参数调用服务端上传接口上传
+				Map<String,Object> request=new HashMap<String,Object>();
+				request.put(Order.ORDER_LOG, content);
+				//从文件名中解析设备编号
+				request.put(Order.TERMINAL_SN, log.getName());
+				
+				logger.debug(new StringBuilder(log.getName()).append(" calling uploadLog api.").toString());
+				
+				Map<String,Object> result=proxyUpay.uploadLog(request);
+				String resultCode = (String)result.get(Response.RESULT_CODE);
+
+				//上传成功后，删除日志文件
+				if(resultCode!=null&&resultCode.equals(Response.RESPONSE_CODE_SUCEESS)){
+					logger.debug(new StringBuilder(" deleting").append(log.getName()).append(".").toString());
+					logService.remove(log);
+				}
+			} catch (IOException e) {
+				logger.debug(new StringBuilder(log.getName()).append(" uploadLog faild.").toString());
+				e.printStackTrace();
+			}
+		}
+	}
+	
     @Override
     public Map<String, Object> getTerminal(String sn) throws ProxyAutoException {
         try {
@@ -286,6 +340,8 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
 		}
     	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
+    	//把设备唯一标识保存到线程临时变量中
+    	logService.setTerminalSn(terminalSn);
     }
     
     

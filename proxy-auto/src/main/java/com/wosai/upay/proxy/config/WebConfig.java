@@ -36,6 +36,7 @@ import com.wosai.springmvc.support.NullableRequestResponseBodyMethodProcessor;
 public class WebConfig extends WebMvcConfigurationSupport {
     @Override
     protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    	
         converters.add(new ByteArrayHttpMessageConverter());
         ClassLoader classLoader = getClass().getClassLoader();
         if (ClassUtils.isPresent("javax.xml.bind.Binder", classLoader)) {

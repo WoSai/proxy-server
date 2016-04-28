@@ -5,6 +5,7 @@
         <resetJUL>true</resetJUL>
     </contextListener>
 
+
     <!-- To enable JMX Management -->
     <jmxConfigurator/>
 
@@ -25,7 +26,7 @@
 
     <!-- ROOT appender -->
     <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.MyTimeBasedRollingPolicy">
             <fileNamePattern>${logdir:-.}/proxy-auto-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
@@ -37,7 +38,6 @@
         </encoder>
     </appender>
 
-
     <root level="debug">
         <appender-ref ref="console"/>
     </root>
@@ -45,7 +45,7 @@
 	<logger name="org.springframework.remoting.support.RemoteInvocationTraceInterceptor" level="error"/>
 
     <logger name="com.wosai.upay.proxy" level="trace" additivity="true">
-    	<appender-ref ref="file"/>
+    	<appender-ref ref="fileAppender"/>
     </logger>
 
 </configuration>
