@@ -312,6 +312,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalId=terminal.get(Terminal.ID).toString();
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
+			
 		case MOVE_TERMINAL:
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
@@ -323,6 +324,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			logger.debug(" update terminal success.");
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
+			
 		case CREATE_STORE_AND_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
 			merchantId=theMap.getMerchantId(clientMerchantSn);
@@ -340,6 +342,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalId=terminal.get(Terminal.ID).toString();
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
+			
 		case CREATE_STORE_AND_MOVE_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
 			store=this.createStore(store);
@@ -360,6 +363,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
 			logger.debug(" no updates.");
+			
 		}
     	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
     	
