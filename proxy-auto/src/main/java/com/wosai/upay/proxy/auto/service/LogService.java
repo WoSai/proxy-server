@@ -62,9 +62,12 @@ public class LogService {
 		logger.info(sb.toString());
 		try {
 			BufferedWriter writer = this.getWriter();
-			writer.write(sb.toString());
-			writer.newLine();
-			writer.flush();
+			//避免日志错乱
+			synchronized(writer){
+				writer.write(sb.toString());
+				writer.newLine();
+				writer.flush();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,8 +79,8 @@ public class LogService {
 	 * @param request
 	 * @param latency
 	 */
-	public void logRequest(HttpServletRequest request,long latency){
-		this.logRequest(request,"post","info","200","handle request",latency);
+	public void logRequest(HttpServletRequest request,String level, long latency){
+		this.logRequest(request,"post",level,"200","handle request",latency);
 	}
 	
 	/**

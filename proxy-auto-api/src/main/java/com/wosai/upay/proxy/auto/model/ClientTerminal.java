@@ -9,4 +9,7 @@ public abstract class ClientTerminal {
     public static final String CLIENT_STORE_SN = "client_store_sn";
     public static final String CLIENT_MERCHANT_SN = "client_merchant_sn";
 
+    public static final String TERMINAL_ID = "terminal_id";
+    public static final String STORE_ID = "store_id";
+
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import com.wosai.upay.proxy.core.exception.ProxyCoreException;
+import com.wosai.upay.proxy.core.model.Terminal;
 
 @Service @Validated
 public class CoreProxyServiceImpl implements ProxyCoreService {

@@ -66,11 +66,18 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.activateTerminal(params);
-        long end = System.nanoTime();
+        String level = "info";
+        try{
+        	Map<String, Object> result = proxyService.activateTerminal(params);
+            return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
         
-        logService.logRequest(request, end-start);
-        return result;
     }
 
     // 交易
@@ -78,66 +85,102 @@ public class ProxyAutoController {
     @ResponseBody
     public Map<String, Object> pay(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.pay(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.pay(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @RequestMapping(value="/preCreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.precreate(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.precreate(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> query(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.query(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.query(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> refund(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.refund(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.refund(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> revoke(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.revoke(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.revoke(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> cancel(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
-    	Map<String, Object> result = proxyService.cancel(params);
-        long end = System.nanoTime();
-        
-        logService.logRequest(request, end-start);
-        return result;
+        String level = "info";
+        try{
+	    	Map<String, Object> result = proxyService.cancel(params);
+	        return result;
+        }catch(Exception e){
+        	level = "error";
+        	throw e;
+        }finally{
+            long end = System.nanoTime();
+            logService.logRequest(request, level, end-start);
+        }
     }
 
     @SuppressWarnings("unchecked")

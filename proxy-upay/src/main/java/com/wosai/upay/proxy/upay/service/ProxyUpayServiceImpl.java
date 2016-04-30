@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.wosai.upay.proxy.exception.BizResponseResolveException;
 import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayKeyStoreException;
 import com.wosai.upay.proxy.upay.exception.UpayApiException;
@@ -42,7 +43,6 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     
     private static final Map<String,String> secretMap=new HashMap<String,String>();
     private static final Map<String,String> dateMap=new HashMap<String,String>();
-    private static final Map<String,Integer> timerMap=new HashMap<String,Integer>();
     
     
     private static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
@@ -314,7 +314,11 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		    try {
 		    	logger.debug(terminalSn+" is signing ");
     		    Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
-    		    secret = response.get(TerminalKey.TERMINAL_KEY).toString();
+    		    Map<String,Object> responseBiz = (Map<String,Object>) response.get(Response.BIZ_RESPONSE);
+    		    if(responseBiz==null){
+                    logger.debug("responseBiz is null");
+    		    }
+    		    secret = responseBiz.get(TerminalKey.TERMINAL_KEY).toString();
 		    	logger.debug(terminalSn+"' sign is "+secret);
 		    } catch (IOException e1) {
                 logger.debug("possible network outage",e1);

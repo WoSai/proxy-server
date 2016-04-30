@@ -17,10 +17,35 @@
 		"method":"post",
 		"param":{
 			"client_terminal":{
-				"client_sn":"1"
+	            "client_sn": "1234567890",
+				"device_fingerprint": "31499CCE184873CCA5A7CD45EFFA315C",
+	            "name": "终端001号",
+	            "type": "2",
+	            "sdk_version": "2.1.0",
+	            "os_version": "Android-5.0.2",
+	            "longitude": "120.311234",
+	            "latitude": "31.312345",
+	            "extra": {"title":"标题"},
+	            "target": "https://shop.abc.com/callback",
+	            "target_type": "1",
+	            "vendor_app_id": "bdf9b7f1-e01d-11e5-9ec3-00163e00625b"
 			},
 			"client_store":{
-				"client_sn":"1"
+	            "client_sn": "1234567890",
+	            "name": "苏州江湖客栈",
+	            "industry": "1",
+	            "longitude": "120.311234",
+	            "latitude": "31.312345",
+	            "province": "江苏省",
+	            "city": "苏州市",
+	            "district": "姑苏区",
+	            "street_address": "平江路139号",
+	            "contact_name": "张三",
+	            "contact_phone": "0512-12345678",
+	            "contact_cellphone": "13412345678",
+	            "contact_email": "zhang@abc.com",
+	            "client_merchant_sn": "1",
+	            "extra": {"title":"标题"}
 			},
 			"client_sn":"12345677767776",
 			"total_amount":"1",

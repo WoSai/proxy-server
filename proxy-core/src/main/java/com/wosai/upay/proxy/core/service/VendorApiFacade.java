@@ -23,6 +23,7 @@ import com.wosai.upay.validation.PropNotEmpty;
  */
 @Validated
 public class VendorApiFacade {
+	private String vendorAppId;
     private String vendorSn;
     private String vendorKey;
     
@@ -81,13 +82,14 @@ public class VendorApiFacade {
 
     public Map<String,Object> createTerminal(@PropNotEmpty.List({
         @PropNotEmpty(Terminal.CLIENT_SN),
-        @PropNotEmpty(Terminal.STORE_SN),
         @PropNotEmpty(Terminal.NAME),
         @PropNotEmpty(Terminal.TYPE),
         @PropNotEmpty(Terminal.STORE_ID)
       })
                               Map<String, Object> request) throws VendorApiException {
     	try {
+
+        	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
         	String url = createTerminalApiUrl;
             return resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
@@ -192,6 +194,11 @@ public class VendorApiFacade {
 
 	public void setActivateTerminalApiUrl(String activateTerminalApiUrl) {
 		this.activateTerminalApiUrl = activateTerminalApiUrl;
+	}
+
+
+	public void setVendorAppId(String vendorAppId) {
+		this.vendorAppId = vendorAppId;
 	}
     
 }

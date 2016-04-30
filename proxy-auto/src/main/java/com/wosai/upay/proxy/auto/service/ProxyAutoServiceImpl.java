@@ -291,7 +291,8 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 		Map<String,Object> clientStore=(Map<String, Object>)request.get(ClientOrder.CLIENT_STORE);
     	String clientStoreSn=clientStore.get(ClientOrderStore.CLIENT_SN.toString()).toString();
     	String clientTerminalSn=clientTerminal.get(ClientOrderTerminal.CLIENT_SN.toString()).toString();
-    	String clientMerchantSn=null,storeSn=null,terminalSn=null;
+    	String clientMerchantSn=clientStore.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
+    	String merchantId=null,storeSn=null,storeId,terminalSn,terminalId=null;
     	
     	//转成服务端接口所需参数
 		Map<String,Object> terminal = clientTerminal;
@@ -301,46 +302,68 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
     	switch (advice) {
 		case CREATE_TERMINAL:
+			//根据store的client_sn获取id
+			storeId=theMap.getStoreId(clientStoreSn);
+			terminal.put(Terminal.STORE_ID, storeId);
 			terminal = this.createTerminal(terminal);
+			logger.debug(" create terminal success.");
 			//获取返回结果的终端标识
 			terminalSn=terminal.get(Terminal.SN).toString();
-	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+			terminalId=terminal.get(Terminal.ID).toString();
+	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 		case MOVE_TERMINAL:
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			//根据store的client_sn获取id
+			storeId=theMap.getStoreId(clientStoreSn);
+			terminal.put(Terminal.STORE_ID, storeId);
 			//根据服务端的sn码，修改服务端的终端信息
 			this.updateTerminal(terminal);
-	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+			logger.debug(" update terminal success.");
+	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 		case CREATE_STORE_AND_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
+			merchantId=theMap.getMerchantId(clientMerchantSn);
+			store.put(Store.MERCHANT_ID, merchantId);
 			store=this.createStore(store);
-			storeSn=store.get(Store.SN).toString();
+			logger.debug(" create store success.");
+			//根据storeid
+			storeId=store.get(Store.ID).toString();
+			terminal.put(Terminal.STORE_ID, storeId);
 			
 			//调用服务端创建终端接口，并获取返回结果的终端标识
 			terminal=this.createTerminal(terminal);
+			logger.debug(" create terminal success.");
 			terminalSn=terminal.get(Terminal.SN).toString();
-	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+			terminalId=terminal.get(Terminal.ID).toString();
+	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 		case CREATE_STORE_AND_MOVE_TERMINAL:
 			//调用服务端门店创建接口，并获取返回结果的门店标识
 			store=this.createStore(store);
-			storeSn=store.get(Store.SN).toString();
+			logger.debug(" create store success.");
+			//根据storeid
+			storeId=store.get(Store.ID).toString();
+			terminal.put(Terminal.STORE_ID, storeId);
 			
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
 			//根据服务端的sn码，修改服务端的终端信息
 			this.updateTerminal(terminal);
-	    	theMap.set(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn);
+			logger.debug(" update terminal success.");
+	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 
 		default:
 			//获取服务端的sn码
 			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			logger.debug(" no updates.");
 		}
     	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
-    	//把设备唯一标识保存到线程临时变量中
+    	
+    	//把设备唯一标识保存到线程临时变量中，供日志组件使用
     	logService.setTerminalSn(terminalSn);
     }
     

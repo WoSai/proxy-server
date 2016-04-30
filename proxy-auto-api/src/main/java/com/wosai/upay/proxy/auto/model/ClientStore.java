@@ -7,4 +7,6 @@ public abstract class ClientStore {
     public static final String STORE_SN = "store_sn";
     public static final String CLIENT_MERCHANT_SN = "client_merchant_sn";
 
+    public static final String STORE_ID = "store_id";
+    
 }

@@ -10,8 +10,10 @@ import com.wosai.upay.proxy.auto.model.ClientMerchant;
 import com.wosai.upay.proxy.auto.model.ClientStore;
 import com.wosai.upay.proxy.auto.model.ClientTerminal;
 import com.wosai.upay.proxy.util.StringUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 
 public class ProxyObjectMap {
 
@@ -118,13 +120,105 @@ public class ProxyObjectMap {
     }
     
     /**
+     * 调用proxy-core创建业务对象成功后，调用set方法更新本地数据库的映射表（实际的要存储服务端的terminal和store的id信息了）。
+     * @param clientMerchantSn
+     * @param clientStoreSn
+     * @param storeSn
+     * @param clientTerminalSn
+     * @param terminalSn
+     */
+    public void setV2(String clientMerchantSn,
+                    String clientStoreSn,
+                    String storeSn,
+                    String clientTerminalSn,
+                    String terminalSn,
+                    String terminalId,
+                    String storeId) {
+    	logger.debug(" Update mapping relation ");
+    	//组织门店查询条件
+    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).like(clientStoreSn);
+    	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
+    	if(store==null){
+    		store=new HashMap<String,Object>();
+    		store.put(ClientStore.ID, storeId);
+    		store.put(ClientStore.CLIENT_STORE_SN, clientStoreSn);
+    		store.put(ClientStore.STORE_SN, storeSn);
+    		store.put(ClientStore.CLIENT_MERCHANT_SN, clientMerchantSn);
+        	logger.debug(" save store ");
+    		storeMapDao.save(store);
+    	}else{
+    		store.put(ClientStore.CLIENT_STORE_SN, clientStoreSn);
+    		store.put(ClientStore.CLIENT_MERCHANT_SN, clientMerchantSn);
+        	logger.debug(" update store ");
+    		storeMapDao.updatePart(store);
+    	}
+    	
+    	//组织终端查询条件
+    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
+    	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
+    	if(terminal==null){
+    		terminal=new HashMap<String,Object>();
+    		terminal.put(ClientTerminal.ID, terminalId);
+        	terminal.put(ClientTerminal.CLIENT_STORE_SN, clientStoreSn);
+        	terminal.put(ClientTerminal.CLIENT_MERCHANT_SN, clientMerchantSn);
+        	terminal.put(ClientTerminal.CLIENT_TERMINAL_SN, clientTerminalSn);
+        	terminal.put(ClientTerminal.TERMINAL_SN, terminalSn);
+
+        	logger.debug(" save terminal ");
+        	terminalMapDao.save(terminal);
+    	}else{
+        	terminal.put(ClientTerminal.CLIENT_STORE_SN, clientStoreSn);
+        	terminal.put(ClientTerminal.CLIENT_MERCHANT_SN, clientMerchantSn);
+        	terminal.put(ClientTerminal.CLIENT_TERMINAL_SN, clientTerminalSn);
+        	logger.debug(" update terminal ");
+        	terminalMapDao.updatePart(terminal);
+    	}
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @param clientTerminalSn
+     * @return
+     */
+    public String getStoreId(String clientStoreSn) {
+    	Map<String,Object> store=getStore(clientStoreSn);
+        return store.get(ClientStore.ID).toString();
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @param clientTerminalSn
+     * @return
+     */
+    public String getMerchantId(String clientMerchantSn) {
+    	Criteria merchantCriteria=Criteria.where(ClientMerchant.CLIENT_MERCHANT_SN).like(clientMerchantSn);
+    	Map<String,Object> merchant=merchantMapDao.filter(merchantCriteria).fetchOne();
+        return merchant.get(ClientMerchant.ID).toString();
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @param clientTerminalSn
+     * @return
+     */
+    @Cacheable("get_store")
+    public Map<String,Object> getStore(String clientStoreSn) {
+    	//组织门店查询条件
+    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).like(clientStoreSn);
+    	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
+        return store;
+    }
+    
+    /**
      * 从映射表中查询terminal_sn（系统分配的终端序列号，调用proxy-core创建终端的时候返回）
      * @param clientMerchantSn
      * @param clientTerminalSn
      * @return
      */
     public String getTerminalSn(String clientMerchantSn, String clientTerminalSn) {
-		// TODO 为什么要clientMerchantSn
     	//组织终端查询条件
     	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
