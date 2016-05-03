@@ -2,7 +2,6 @@ package com.wosai.upay.proxy.auto.service;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -16,7 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wosai.upay.proxy.auto.exception.ParameterValidationException;
 import com.wosai.upay.proxy.util.StringUtil;
+import com.wosai.upay.proxy.util.ZipUtil;
 
 /**
  * 日志工具
@@ -155,8 +156,7 @@ public class LogService {
 	 * 关闭日志文件流并删除文件
 	 * @param terminalSn
 	 */
-	public void remove(File file) {
-		String terminalSn = file.getName();
+	public void remove(String terminalSn) {
 		BufferedWriter bw = writerMap.get(terminalSn);
 		synchronized(writerMap){
 			synchronized(bw){
@@ -164,13 +164,46 @@ public class LogService {
 				writerMap.remove(terminalSn);
 				try {
 					bw.close();
-					file.delete();
+					new File(new StringBuilder(logDir).append(terminalSn).append(suffix).toString()).delete();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 获取待上传日志的集合
+	 * @return
+	 */
+	public Map<String,String> list(){
+		Map<String,String> map=new HashMap<String,String>();
+		
+		File file=new File(logDir);
+		if(!file.exists()){
+			throw new ParameterValidationException(new StringBuilder(logDir).append(" not exists. ").toString());
+		}
+		if(!file.isDirectory()){
+			throw new ParameterValidationException(new StringBuilder(logDir).append(" not directory. ").toString());
+		}
+		//遍历需要上传的日志文件夹下的日志文件
+		File[] logs=file.listFiles();
+
+		for(File log:logs) {
+			String terminalSn=log.getName().split("\\.")[0];
+			if(!StringUtil.empty(terminalSn)&&!terminalSn.equals("null")){
+				//获取文件的压缩内容
+				try {
+					logger.debug(new StringBuilder(terminalSn).append(" is compressing.").toString());
+					map.put(terminalSn, ZipUtil.zipByFile(log));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return map;
 	}
 
 	public void setLogDir(String logDir) {

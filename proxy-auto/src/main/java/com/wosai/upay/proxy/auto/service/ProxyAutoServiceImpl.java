@@ -1,8 +1,8 @@
 package com.wosai.upay.proxy.auto.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wosai.upay.proxy.auto.exception.ParameterValidationException;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
 import com.wosai.upay.proxy.auto.exception.ProxyCoreDependencyException;
 import com.wosai.upay.proxy.auto.exception.ProxyUpayDependencyException;
@@ -34,7 +33,6 @@ import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.model.Order;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
-import com.wosai.upay.proxy.util.ZipUtil;
 
 @Service
 public class ProxyAutoServiceImpl implements ProxyAutoService {
@@ -207,10 +205,10 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	
         	Map<String, Object> result = proxyCore.createTerminal(param);
         	
-	    	//初始化终端秘钥
-			String terminalSn = result.get(Terminal.SN).toString();
-			String secret = result.get(Terminal.SECRET).toString();
 			try{
+		    	//初始化终端秘钥
+				String terminalSn = result.get(Terminal.SN).toString();
+				String secret = result.get(Terminal.SECRET).toString();
 				proxyUpay.init(terminalSn, secret);
 			}catch(Exception e){
 				logger.debug("init secret faild.");
@@ -260,45 +258,28 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 
 	@Override
 	public void uploadLog() throws ProxyAutoException {
-		String logDir=logService.getLogDir();
-		File file=new File(logDir);
-		if(!file.exists()){
-			throw new ParameterValidationException(new StringBuilder(logDir).append(" not exists. ").toString());
-		}
-		if(!file.isDirectory()){
-			throw new ParameterValidationException(new StringBuilder(logDir).append(" not directory. ").toString());
-		}
-		//遍历需要上传的日志文件夹下的日志文件
-		File[] logs=file.listFiles();
-		for(File log:logs) {
-			String terminalSn=log.getName().split("\\.")[0];
-			try {
-				
-
-				logger.debug(new StringBuilder(terminalSn).append(" is compressing.").toString());
-				
-				//获取文件的压缩内容
-				String content = ZipUtil.zipByFile(log);
+		Map<String,String> logMap=logService.list();
+		Iterator<String> it=logMap.keySet().iterator();
+		while(it.hasNext()) {
 		        
-		        //组织参数调用服务端上传接口上传
-				Map<String,Object> request=new HashMap<String,Object>();
-				request.put(Order.ORDER_LOG, content);
-				//从文件名中解析设备编号
-				request.put(Order.TERMINAL_SN, terminalSn);
-				
-				logger.debug(new StringBuilder(terminalSn).append(" calling uploadLog api.").toString());
-				
-				Map<String,Object> result=proxyUpay.uploadLog(request);
-				String resultCode = (String)result.get(Response.RESULT_CODE);
+	        //组织参数调用服务端上传接口上传
+			Map<String,Object> request=new HashMap<String,Object>();
+			String terminalSn=it.next();
+			String content = logMap.get(terminalSn);
+			request.put(Order.ORDER_LOG, content);
+			request.put(Order.TERMINAL_SN, terminalSn);
+			
+			logger.debug(new StringBuilder(terminalSn).append(" calling uploadLog api.").toString());
 
-				//上传成功后，删除日志文件
-				if(resultCode!=null&&resultCode.equals(Response.RESPONSE_CODE_SUCEESS)){
-					logger.debug(new StringBuilder(" deleting").append(terminalSn).append(".").toString());
-					logService.remove(log);
-				}
-			} catch (IOException e) {
+			Map<String,Object> result=proxyUpay.uploadLog(request);
+			String resultCode = (String)result.get(Response.RESULT_CODE);
+
+			//上传成功后，删除日志文件
+			if(resultCode!=null&&resultCode.equals(Response.RESPONSE_CODE_SUCEESS)){
+				logger.debug(new StringBuilder(" deleting").append(terminalSn).append(".").toString());
+				logService.remove(terminalSn);
+			}else{
 				logger.debug(new StringBuilder(terminalSn).append(" uploadLog faild.").toString());
-				e.printStackTrace();
 			}
 		}
 	}
