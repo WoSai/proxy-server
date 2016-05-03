@@ -158,7 +158,12 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 		
     	//服务端入库
         try {
-            return proxyCore.createStore(request);
+        	Map<String,Object> param=new HashMap<String,Object>();
+        	ClientOrderStore[] values=ClientOrderStore.values();
+        	for(ClientOrderStore value:values){
+        		this.transferMap(request, param, value.getValue(), value.getMap());
+        	}
+            return proxyCore.createStore(param);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -168,7 +173,12 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
             throws ProxyAutoException {
     	//服务端入库
         try {
-            proxyCore.updateStore(request);
+        	Map<String,Object> param=new HashMap<String,Object>();
+        	ClientOrderStore[] values=ClientOrderStore.values();
+        	for(ClientOrderStore value:values){
+        		this.transferMap(request, param, value.getValue(), value.getMap());
+        	}
+            proxyCore.updateStore(param);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -188,7 +198,25 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	
     	//服务端入库
         try {
-            return proxyCore.createTerminal(request);
+        	//参数过滤，过滤多余的参数
+        	Map<String,Object> param=new HashMap<String,Object>();
+        	ClientOrderTerminal[] values=ClientOrderTerminal.values();
+        	for(ClientOrderTerminal value:values){
+        		this.transferMap(request, param, value.getValue(), value.getMap());
+        	}
+        	
+        	Map<String, Object> result = proxyCore.createTerminal(param);
+        	
+	    	//初始化终端秘钥
+			String terminalSn = result.get(Terminal.SN).toString();
+			String secret = result.get(Terminal.SECRET).toString();
+			try{
+				proxyUpay.init(terminalSn, secret);
+			}catch(Exception e){
+				logger.debug("init secret faild.");
+				throw new ProxyUpayDependencyException("init secret faild.");
+			}
+            return result;
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -199,7 +227,13 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     public void updateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
         try {
-            proxyCore.updateTerminal(request);
+        	//参数过滤，过滤多余的参数
+        	Map<String,Object> param=new HashMap<String,Object>();
+        	ClientOrderTerminal[] values=ClientOrderTerminal.values();
+        	for(ClientOrderTerminal value:values){
+        		this.transferMap(request, param, value.getValue(), value.getMap());
+        	}
+            proxyCore.updateTerminal(param);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -237,9 +271,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 		//遍历需要上传的日志文件夹下的日志文件
 		File[] logs=file.listFiles();
 		for(File log:logs) {
+			String terminalSn=log.getName().split("\\.")[0];
 			try {
+				
 
-				logger.debug(new StringBuilder(log.getName()).append(" is compressing.").toString());
+				logger.debug(new StringBuilder(terminalSn).append(" is compressing.").toString());
 				
 				//获取文件的压缩内容
 				String content = ZipUtil.zipByFile(log);
@@ -248,20 +284,20 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 				Map<String,Object> request=new HashMap<String,Object>();
 				request.put(Order.ORDER_LOG, content);
 				//从文件名中解析设备编号
-				request.put(Order.TERMINAL_SN, log.getName());
+				request.put(Order.TERMINAL_SN, terminalSn);
 				
-				logger.debug(new StringBuilder(log.getName()).append(" calling uploadLog api.").toString());
+				logger.debug(new StringBuilder(terminalSn).append(" calling uploadLog api.").toString());
 				
 				Map<String,Object> result=proxyUpay.uploadLog(request);
 				String resultCode = (String)result.get(Response.RESULT_CODE);
 
 				//上传成功后，删除日志文件
 				if(resultCode!=null&&resultCode.equals(Response.RESPONSE_CODE_SUCEESS)){
-					logger.debug(new StringBuilder(" deleting").append(log.getName()).append(".").toString());
+					logger.debug(new StringBuilder(" deleting").append(terminalSn).append(".").toString());
 					logService.remove(log);
 				}
 			} catch (IOException e) {
-				logger.debug(new StringBuilder(log.getName()).append(" uploadLog faild.").toString());
+				logger.debug(new StringBuilder(terminalSn).append(" uploadLog faild.").toString());
 				e.printStackTrace();
 			}
 		}
@@ -292,7 +328,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	String clientStoreSn=clientStore.get(ClientOrderStore.CLIENT_SN.toString()).toString();
     	String clientTerminalSn=clientTerminal.get(ClientOrderTerminal.CLIENT_SN.toString()).toString();
     	String clientMerchantSn=clientStore.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
-    	String merchantId=null,storeSn=null,storeId,terminalSn,terminalId=null;
+    	String merchantId=null,storeSn=null,storeId=null,terminalSn=null,secret=null,terminalId=null;
     	
     	//转成服务端接口所需参数
 		Map<String,Object> terminal = clientTerminal;
@@ -302,66 +338,117 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
     	switch (advice) {
 		case CREATE_TERMINAL:
-			//根据store的client_sn获取id
+			//根据store的client_sn获取sn和id
 			storeId=theMap.getStoreId(clientStoreSn);
-			terminal.put(Terminal.STORE_ID, storeId);
-			terminal = this.createTerminal(terminal);
+			storeSn=theMap.getStoreSn(clientStoreSn);
+			terminal.put(Terminal.STORE_SN, storeSn);
+			try{
+				//调用服务端API创建终端
+				terminal = this.createTerminal(terminal);
+			}catch(Exception e){
+				logger.debug("create terminal faild.");
+				throw new ProxyCoreDependencyException("create terminal faild.");
+			}
 			logger.debug(" create terminal success.");
 			//获取返回结果的终端标识
 			terminalSn=terminal.get(Terminal.SN).toString();
 			terminalId=terminal.get(Terminal.ID).toString();
+			//更新映射
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
-			break;
+	    	
+	    	//初始化upay的终端秘钥
+			secret=terminal.get(Terminal.SECRET).toString();
+	    	break;
 			
 		case MOVE_TERMINAL:
 			//获取服务端的sn码
-			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
-			//根据store的client_sn获取id
+			terminalSn=theMap.getTerminalSn(clientTerminalSn);
+			terminalId=theMap.getTerminalId(clientTerminalSn);
+			terminal.put(Terminal.ID, terminalId);
+			//根据store的client_sn获取sn和id
 			storeId=theMap.getStoreId(clientStoreSn);
+			storeSn=theMap.getStoreSn(clientStoreSn);
 			terminal.put(Terminal.STORE_ID, storeId);
-			//根据服务端的sn码，修改服务端的终端信息
-			this.updateTerminal(terminal);
+			try{
+				//调用服务端api修改服务端的终端信息
+				this.updateTerminal(terminal);
+			}catch(Exception e){
+				logger.debug("update terminal faild.");
+				throw new ProxyCoreDependencyException("update terminal faild.");
+			}
 			logger.debug(" update terminal success.");
+			//更新本地映射
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 			
 		case CREATE_STORE_AND_TERMINAL:
-			//调用服务端门店创建接口，并获取返回结果的门店标识
+			//获取商家信息
 			merchantId=theMap.getMerchantId(clientMerchantSn);
 			store.put(Store.MERCHANT_ID, merchantId);
-			store=this.createStore(store);
+			//调用服务端门店创建接口，并获取返回结果的门店标识
+			try{
+				store=this.createStore(store);
+			}catch(Exception e){
+				logger.debug("create store faild.");
+				throw new ProxyCoreDependencyException("create store faild.");
+			}
 			logger.debug(" create store success.");
-			//根据storeid
+			//获取新门店的sn和id
 			storeId=store.get(Store.ID).toString();
-			terminal.put(Terminal.STORE_ID, storeId);
+			storeSn=store.get(Store.SN).toString();
+			terminal.put(Terminal.STORE_SN, storeSn);
 			
 			//调用服务端创建终端接口，并获取返回结果的终端标识
-			terminal=this.createTerminal(terminal);
+			try{
+				terminal = this.createTerminal(terminal);
+			}catch(Exception e){
+				logger.debug("create terminal faild.");
+				throw new ProxyCoreDependencyException("create terminal faild.");
+			}
 			logger.debug(" create terminal success.");
 			terminalSn=terminal.get(Terminal.SN).toString();
 			terminalId=terminal.get(Terminal.ID).toString();
+			//更新本地映射
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
-			break;
+			
+	    	break;
 			
 		case CREATE_STORE_AND_MOVE_TERMINAL:
+			//获取商家信息
+			merchantId=theMap.getMerchantId(clientMerchantSn);
+			store.put(Store.MERCHANT_ID, merchantId);
 			//调用服务端门店创建接口，并获取返回结果的门店标识
-			store=this.createStore(store);
+			try{
+				store=this.createStore(store);
+			}catch(Exception e){
+				logger.debug("create store faild.");
+				throw new ProxyCoreDependencyException("create store faild.");
+			}
 			logger.debug(" create store success.");
-			//根据storeid
+			//获取新门店的sn和id
 			storeId=store.get(Store.ID).toString();
+			storeSn=store.get(Store.SN).toString();
 			terminal.put(Terminal.STORE_ID, storeId);
 			
 			//获取服务端的sn码
-			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			terminalSn=theMap.getTerminalSn(clientTerminalSn);
+			terminalId=theMap.getTerminalId(clientTerminalSn);
+			terminal.put(Terminal.ID, terminalId);
 			//根据服务端的sn码，修改服务端的终端信息
-			this.updateTerminal(terminal);
+			try{
+				this.updateTerminal(terminal);
+			}catch(Exception e){
+				logger.debug("update terminal faild.");
+				throw new ProxyCoreDependencyException("update terminal faild.");
+			}
 			logger.debug(" update terminal success.");
+			//更新本地映射
 	    	theMap.setV2(clientMerchantSn, clientStoreSn, storeSn, clientTerminalSn, terminalSn, terminalId, storeId);
 			break;
 
 		default:
 			//获取服务端的sn码
-			terminalSn=theMap.getTerminalSn(clientMerchantSn, clientTerminalSn);
+			terminalSn=theMap.getTerminalSn(clientTerminalSn);
 			logger.debug(" no updates.");
 			
 		}

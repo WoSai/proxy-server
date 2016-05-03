@@ -27,8 +27,7 @@
 	            "latitude": "31.312345",
 	            "extra": {"title":"标题"},
 	            "target": "https://shop.abc.com/callback",
-	            "target_type": "1",
-	            "vendor_app_id": "bdf9b7f1-e01d-11e5-9ec3-00163e00625b"
+	            "target_type": "1"
 			},
 			"client_store":{
 	            "client_sn": "1234567890",

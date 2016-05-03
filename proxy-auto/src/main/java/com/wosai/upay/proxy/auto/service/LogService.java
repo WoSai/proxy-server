@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wosai.upay.proxy.util.StringUtil;
+
 /**
  * 日志工具
  * @author qi
@@ -62,11 +64,14 @@ public class LogService {
 		logger.info(sb.toString());
 		try {
 			BufferedWriter writer = this.getWriter();
-			//避免日志错乱
-			synchronized(writer){
-				writer.write(sb.toString());
-				writer.newLine();
-				writer.flush();
+			if(writer!=null){
+				//避免日志错乱
+				synchronized(writer){
+					writer.write(sb.toString());
+					writer.newLine();
+					writer.flush();
+					logger.debug(" request log  is completed ");
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -124,7 +129,12 @@ public class LogService {
 	 * @throws IOException
 	 */
 	private BufferedWriter getWriter() throws IOException{
+		logger.debug(" logging request ");
 		String terminalSn = this.getTerminalSn();
+		if(StringUtil.empty(terminalSn)){
+			logger.debug(" terminalSn not found ");
+			return null;
+		}
 		String now = new SimpleDateFormat("yyyy-mm-dd").format(Calendar.getInstance().getTime());
 		String date = dateMap.get(terminalSn);
 		BufferedWriter bw = writerMap.get(terminalSn);
@@ -148,14 +158,18 @@ public class LogService {
 	public void remove(File file) {
 		String terminalSn = file.getName();
 		BufferedWriter bw = writerMap.get(terminalSn);
-		dateMap.remove(terminalSn);
-		writerMap.remove(terminalSn);
-		try {
-			bw.close();
-			file.delete();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		synchronized(writerMap){
+			synchronized(bw){
+				dateMap.remove(terminalSn);
+				writerMap.remove(terminalSn);
+				try {
+					bw.close();
+					file.delete();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 

@@ -16,7 +16,10 @@ public abstract class Terminal {
     public static final String TARGET = "target";
     public static final String TARGET_TYPE = "target_type";
     public static final String STORE_ID = "store_id";
-    public static final String VENDOR_APP_ID = "vendor_app_id";
+    public static final String STORE_SN = "store_sn";
+    public static final String VENDOR_APP_ID = "vendor_app_appid";
+    
+    public static final String SECRET = "secret";
     
 
     public static final String CODE = "code";

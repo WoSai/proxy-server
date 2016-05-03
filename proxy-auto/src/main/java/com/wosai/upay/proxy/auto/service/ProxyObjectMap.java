@@ -181,6 +181,17 @@ public class ProxyObjectMap {
      * @param clientTerminalSn
      * @return
      */
+    public String getStoreSn(String clientStoreSn) {
+    	Map<String,Object> store=getStore(clientStoreSn);
+        return store.get(ClientStore.STORE_SN).toString();
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @param clientTerminalSn
+     * @return
+     */
     public String getStoreId(String clientStoreSn) {
     	Map<String,Object> store=getStore(clientStoreSn);
         return store.get(ClientStore.ID).toString();
@@ -214,15 +225,35 @@ public class ProxyObjectMap {
     
     /**
      * 从映射表中查询terminal_sn（系统分配的终端序列号，调用proxy-core创建终端的时候返回）
+     * @param clientTerminalSn
+     * @return
+     */
+    public String getTerminalSn(String clientTerminalSn) {
+        return this.getTerminal(clientTerminalSn).get(ClientTerminal.TERMINAL_SN).toString();
+    }
+    
+    /**
+     * 从映射表中查询terminal_sn（系统分配的终端序列号，调用proxy-core创建终端的时候返回）
      * @param clientMerchantSn
      * @param clientTerminalSn
      * @return
      */
-    public String getTerminalSn(String clientMerchantSn, String clientTerminalSn) {
+    public String getTerminalId(String clientTerminalSn) {
+        return this.getTerminal(clientTerminalSn).get(ClientTerminal.ID).toString();
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @param clientTerminalSn
+     * @return
+     */
+    @Cacheable("get_terminal")
+    public Map<String,Object> getTerminal(String clientTerminalSn) {
     	//组织终端查询条件
     	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
-        return terminal.get(ClientTerminal.TERMINAL_SN).toString();
+        return terminal;
     }
     
     /**

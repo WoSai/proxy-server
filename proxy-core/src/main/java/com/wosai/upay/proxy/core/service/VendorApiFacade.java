@@ -84,7 +84,7 @@ public class VendorApiFacade {
         @PropNotEmpty(Terminal.CLIENT_SN),
         @PropNotEmpty(Terminal.NAME),
         @PropNotEmpty(Terminal.TYPE),
-        @PropNotEmpty(Terminal.STORE_ID)
+        @PropNotEmpty(Terminal.STORE_SN)
       })
                               Map<String, Object> request) throws VendorApiException {
     	try {
@@ -100,6 +100,8 @@ public class VendorApiFacade {
 
 	public void updateTerminal(Map<String, Object> request) {
 		try {
+			//创建接口的vendor_app_id字段和更新接口的vendor_app_appid有什么区别？
+//        	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
         	String url = updateTerminalApiUrl;
             resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {

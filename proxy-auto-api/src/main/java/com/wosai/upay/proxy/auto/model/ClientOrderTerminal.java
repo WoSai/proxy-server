@@ -1,23 +1,25 @@
 package com.wosai.upay.proxy.auto.model;
 
 public enum ClientOrderTerminal {
+	ID("id"),
 
 	DEVICE_ID("device_id",null),
-	CLIENT_SN("client_sn",null),
+	CLIENT_SN("client_sn"),
     SN("sn",null),
     
-	DEVICE_FINGERPRINT("device_fingerprint",null),
-	NAME("name",null),
-	TYPE("type",null),
-	SDK_VERSION("sdk_version",null),
-	OS_VERSION("os_version",null),
-	LONGITUDE("longitude",null),
-	LATITUDE("latitude",null),
-	EXTRA("extra",null),
-	TARGET("target",null),
-	TARGET_TYPE("target_type",null),
-	STORE_ID("store_id",null),
-	VENDOR_APP_ID("vendor_app_id",null);
+	DEVICE_FINGERPRINT("device_fingerprint"),
+	NAME("name"),
+	TYPE("type"),
+	SDK_VERSION("sdk_version"),
+	OS_VERSION("os_version"),
+	LONGITUDE("longitude"),
+	LATITUDE("latitude"),
+	EXTRA("extra"),
+	TARGET("target"),
+	TARGET_TYPE("target_type"),
+	STORE_ID("store_id"),
+	STORE_SN("store_sn"),
+	VENDOR_APP_ID("vendor_app_appid");
 	
 
     //本地接口字段名
