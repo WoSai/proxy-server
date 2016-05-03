@@ -275,7 +275,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			String resultCode = (String)result.get(Response.RESULT_CODE);
 
 			//上传成功后，删除日志文件
-			if(resultCode!=null&&resultCode.equals(Response.RESPONSE_CODE_SUCEESS)){
+			if(resultCode!=null&&resultCode.equals(Response.RESULT_CODE_SUCEESS)){
 				logger.debug(new StringBuilder(" deleting").append(terminalSn).append(".").toString());
 				logService.remove(terminalSn);
 			}else{

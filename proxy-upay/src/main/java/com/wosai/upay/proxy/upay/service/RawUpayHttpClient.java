@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wosai.upay.httpclient.UpayHttpClient;
+import com.wosai.upay.httpclient.UpayHttpClient.JsonMapResponseExtractor;
 import com.wosai.upay.util.Digest;
 
 /**
@@ -29,12 +30,15 @@ public class RawUpayHttpClient extends UpayHttpClient {
 	private static final int BUFFER=4*1024;
 	
 	private RestTemplate restTemplate;
+	
+	private ObjectMapper objectMapper;
 
 	@Autowired
 	public RawUpayHttpClient(RestTemplate restTemplate,
 			ObjectMapper objectMapper) {
 		super(restTemplate, objectMapper);
 		this.restTemplate=restTemplate;
+		this.objectMapper=objectMapper;
 	}
 
 	/**
@@ -57,7 +61,8 @@ public class RawUpayHttpClient extends UpayHttpClient {
         String signature = Digest.md5(baos.toByteArray());
         try {
             return restTemplate.execute(url, HttpMethod.POST,
-                                        new SignRequestCallback(raw, principal+" "+signature),null);
+                                        new SignRequestCallback(raw, principal+" "+signature),
+                                        new JsonMapResponseExtractor(objectMapper));
         }catch(RestClientException ex) {
             throw new IOException("rest client i/o error", ex);
         }
@@ -87,7 +92,8 @@ public class RawUpayHttpClient extends UpayHttpClient {
         String signature = Digest.md5(baos.toByteArray());
         try {
             return restTemplate.execute(url, HttpMethod.POST,
-                                        new SignRequestCallback(raw, principal+" "+signature),null);
+                                        new SignRequestCallback(raw, principal+" "+signature),
+                                        new JsonMapResponseExtractor(objectMapper));
         }catch(RestClientException ex) {
             throw new IOException("rest client i/o error", ex);
         }

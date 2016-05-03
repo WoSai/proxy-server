@@ -280,7 +280,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     public Map<String, Object> uploadLog(Map<String, Object> request)
             throws ProxyUpayException {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
-        String terminalKey = this.getKey(terminalSn,request);
+        //上传日志暂时不做签到
+//        String terminalKey = this.getKey(terminalSn,request);
+        String terminalKey = keyStore.getKey(terminalSn);
         
         String log = (String)request.get(Order.ORDER_LOG);
         try {

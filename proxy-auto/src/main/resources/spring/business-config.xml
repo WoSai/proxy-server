@@ -48,6 +48,7 @@ Data and Service layers
   </bean>
 
   <bean class="com.wosai.upay.proxy.auto.timer.UploadLogTimer">
+    <property name="interval" value="${timer.log.upload.interval:86400}" />
     <property name="startHour" value="${timer.log.upload.hour:23}" />
     <property name="startMinuter" value="${timer.log.upload.minuter:30}" />
     <property name="startSecond" value="0" />

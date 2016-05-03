@@ -159,17 +159,19 @@ public class LogService {
 	public void remove(String terminalSn) {
 		BufferedWriter bw = writerMap.get(terminalSn);
 		synchronized(writerMap){
-			synchronized(bw){
-				dateMap.remove(terminalSn);
-				writerMap.remove(terminalSn);
-				try {
-					bw.close();
-					new File(new StringBuilder(logDir).append(terminalSn).append(suffix).toString()).delete();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			if(bw!=null){
+				synchronized(bw){
+					dateMap.remove(terminalSn);
+					writerMap.remove(terminalSn);
+					try {
+						bw.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
+			new File(new StringBuilder(logDir).append(terminalSn).append(suffix).toString()).delete();
 		}
 	}
 	

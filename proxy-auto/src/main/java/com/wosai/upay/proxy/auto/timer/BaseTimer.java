@@ -62,7 +62,7 @@ public class BaseTimer implements InitializingBean {
 							e.printStackTrace();
 						}
 					}
-				}, 0, 0);
+				}, delay, baseTimerTask.getInterval());
 			}
 		}
 	}
