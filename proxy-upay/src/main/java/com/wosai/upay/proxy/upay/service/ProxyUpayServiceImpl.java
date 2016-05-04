@@ -319,6 +319,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     		    Map<String,Object> responseBiz = (Map<String,Object>) response.get(Response.BIZ_RESPONSE);
     		    if(responseBiz==null){
                     logger.debug("responseBiz is null");
+                    throw new ProxyUpayKeyStoreException(" checkin faild.");
     		    }
     		    secret = responseBiz.get(TerminalKey.TERMINAL_KEY).toString();
 		    	logger.debug(terminalSn+"' sign is "+secret);
