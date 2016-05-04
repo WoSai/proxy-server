@@ -30,9 +30,9 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     }
 
     @Override
-    public Map<String, Object> getStore(String sn) throws ProxyCoreException {
+    public Map<String, Object> getStore(String storeId) throws ProxyCoreException {
 
-    	return vendorApi.getStore(sn);
+    	return vendorApi.getStore(storeId);
     }
 
     @Override
@@ -57,9 +57,9 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     }
 
     @Override
-    public Map<String, Object> getTerminal(String sn) throws ProxyCoreException {
+    public Map<String, Object> getTerminal(String terminalId) throws ProxyCoreException {
 
-    	return vendorApi.getTerminal(sn);
+    	return vendorApi.getTerminal(terminalId);
     }
 
 	public void setVendorApi(VendorApiFacade vendorApi) {

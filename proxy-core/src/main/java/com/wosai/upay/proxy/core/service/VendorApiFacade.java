@@ -70,10 +70,12 @@ public class VendorApiFacade {
 	}
 
 
-	public Map<String, Object> getStore(String sn) {
+	public Map<String, Object> getStore(String storeId) {
 		try {
+			Map<String,Object> map=new HashMap<String,Object>();
+			map.put(Store.ID, storeId);
         	String url = getStoreApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, null));
+            return resolve2(client.call(vendorSn, vendorKey, url, map));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call getStore api.", ex);
         }
@@ -110,9 +112,10 @@ public class VendorApiFacade {
 	}
 
 
-	public Map<String, Object> getTerminal(String sn) {
+	public Map<String, Object> getTerminal(String terminalId) {
 		try {
 			Map<String,Object> map=new HashMap<String,Object>();
+			map.put(Terminal.ID, terminalId);
         	String url = getTerminalApiUrl;
             return resolve2(client.call(vendorSn, vendorKey, url, map));
         }catch(IOException ex) {

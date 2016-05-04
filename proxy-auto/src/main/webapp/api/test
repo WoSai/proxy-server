@@ -152,7 +152,7 @@
 	},
 	{
 		"title":"更新门店",
-		"action":"../proxy/terminal/update",
+		"action":"../proxy/store/update",
 		"method":"post",
 		"param":{
             "client_sn": "1234567890",
@@ -174,7 +174,7 @@
 	},
 	{
 		"title":"获取门店",
-		"action":"../proxy/terminal/get",
+		"action":"../proxy/store/get",
 		"method":"post",
 		"param":{
             "client_sn": "1234567890"
@@ -195,6 +195,7 @@
             "latitude": "31.312345",
             "extra": {"title":"标题"},
             "target": "https://shop.abc.com/callback",
+            "client_store_sn":"1234567890",
             "target_type": "1"
 		}
 	},

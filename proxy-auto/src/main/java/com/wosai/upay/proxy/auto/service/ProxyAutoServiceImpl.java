@@ -221,8 +221,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     @Override
     public Map<String, Object> getStore(Map<String, Object> request) throws ProxyAutoException {
         try {
-        	String sn = request.get(Store.CLIENT_SN).toString();
-            return proxyCore.getStore(sn);
+        	String clientStoreSn = request.get(Store.CLIENT_SN).toString();
+        	String storeId = theMap.getStoreId(clientStoreSn);
+            return proxyCore.getStore(storeId);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -271,9 +272,8 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
-
-        
     }
+    
     @Override
     public void updateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
@@ -320,6 +320,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }
 
     }
+    
     @Override
     public Map<String, Object> activateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
@@ -370,8 +371,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     @Override
     public Map<String, Object> getTerminal(Map<String, Object> request) throws ProxyAutoException {
         try {
-        	String sn = request.get(Terminal.CLIENT_SN).toString();
-            return proxyCore.getTerminal(sn);
+        	String clientTerminalSn = request.get(Terminal.CLIENT_SN).toString();
+        	String terminalId = theMap.getTerminalId(clientTerminalSn);
+            return proxyCore.getTerminal(terminalId);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -398,9 +400,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	
     	//转成服务端接口所需参数
 		Map<String,Object> terminal = null;
-		Map<String,Object> store = null;
-    	
-    	//本地映射校验
+		//本地映射校验
     	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
     	switch (advice) {
 		case CREATE_TERMINAL:
@@ -437,8 +437,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			
 		case CREATE_STORE_AND_TERMINAL:
 			try{
-				//创建门店
-				store=this.createStore(clientStore);
+				this.createStore(clientStore);
 			}catch(Exception e){
 				logger.debug("create store faild.");
 				throw new ProxyCoreDependencyException("create store faild.", e);
@@ -460,8 +459,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			
 		case CREATE_STORE_AND_MOVE_TERMINAL:
 			try{
-				//创建门店
-				store=this.createStore(clientStore);
+				this.createStore(clientStore);
 			}catch(Exception e){
 				logger.debug("create store faild.");
 				throw new ProxyCoreDependencyException("create store faild.", e);
