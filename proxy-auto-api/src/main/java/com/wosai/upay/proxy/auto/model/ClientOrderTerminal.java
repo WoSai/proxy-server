@@ -19,6 +19,7 @@ public enum ClientOrderTerminal {
 	TARGET_TYPE("target_type"),
 	STORE_ID("store_id"),
 	STORE_SN("store_sn"),
+	CLIENT_STORE_SN("client_store_sn",null),
 	VENDOR_APP_ID("vendor_app_appid");
 	
 

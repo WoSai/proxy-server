@@ -18,6 +18,7 @@ public enum ClientOrderStore {
 	CONTACT_PHONE("contact_phone"),
 	CONTACT_CELLPHONE("contact_cellphone"),
 	CONTACT_EMAIL("contact_email"),
+	MERCHANT_SN("merchant_sn",null),
 	CLIENT_MERCHANT_SN("client_merchant_sn",null),
 	MERCHANT_ID("merchant_id"),
 	EXTRA("extra");
