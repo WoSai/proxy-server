@@ -183,8 +183,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         
     }
     @Override
-    public Map<String, Object> getStore(String sn) throws ProxyAutoException {
+    public Map<String, Object> getStore(Map<String, Object> request) throws ProxyAutoException {
         try {
+        	String sn = request.get(Store.CLIENT_SN).toString();
             return proxyCore.getStore(sn);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
@@ -285,8 +286,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 	}
 	
     @Override
-    public Map<String, Object> getTerminal(String sn) throws ProxyAutoException {
+    public Map<String, Object> getTerminal(Map<String, Object> request) throws ProxyAutoException {
         try {
+        	String sn = request.get(Terminal.CLIENT_SN).toString();
             return proxyCore.getTerminal(sn);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);

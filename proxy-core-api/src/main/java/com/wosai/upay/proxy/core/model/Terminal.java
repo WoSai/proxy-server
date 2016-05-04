@@ -19,7 +19,7 @@ public abstract class Terminal {
     public static final String STORE_SN = "store_sn";
     public static final String VENDOR_APP_ID = "vendor_app_appid";
     
-    public static final String SECRET = "secret";
+    public static final String SECRET = "current_secret";
     
 
     public static final String CODE = "code";

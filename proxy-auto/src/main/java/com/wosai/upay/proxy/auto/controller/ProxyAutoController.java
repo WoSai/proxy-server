@@ -21,7 +21,7 @@ import com.wosai.upay.proxy.auto.exception.ProxyAutoSystemException;
 import com.wosai.upay.proxy.auto.service.LogService;
 import com.wosai.upay.proxy.auto.service.ProxyAutoService;
 
-@Controller
+@Controller @Deprecated
 @RequestMapping("/auto")
 public class ProxyAutoController {
     private static final Logger logger = LoggerFactory.getLogger(ProxyAutoController.class); 
@@ -33,14 +33,14 @@ public class ProxyAutoController {
 
     // 门店管理
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params,HttpServletRequest request) {
     	Map<String, Object> result = proxyService.createStore(params);
         return result;
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> updateStore(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         proxyService.updateStore(params);
         return success();
@@ -48,14 +48,14 @@ public class ProxyAutoController {
     
     //终端管理
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params,HttpServletRequest request) {
     	Map<String, Object> result = proxyService.createTerminal(params);
         return result;
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> updateTerminal(Map<String, Object> params,HttpServletRequest request) {
         
         proxyService.updateTerminal(params);
@@ -63,7 +63,7 @@ public class ProxyAutoController {
     }
     
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -82,7 +82,7 @@ public class ProxyAutoController {
 
     // 交易
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> pay(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -99,7 +99,7 @@ public class ProxyAutoController {
     }
 
     @RequestMapping(value="/preCreate", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -116,7 +116,7 @@ public class ProxyAutoController {
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> query(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -133,7 +133,7 @@ public class ProxyAutoController {
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> refund(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -150,7 +150,7 @@ public class ProxyAutoController {
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> revoke(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
@@ -167,7 +167,7 @@ public class ProxyAutoController {
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
-    @ResponseBody
+    @ResponseBody @Deprecated
     public Map<String, Object> cancel(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         long start = System.nanoTime();
         String level = "info";
