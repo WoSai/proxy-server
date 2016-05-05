@@ -226,6 +226,8 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
             return proxyCore.getStore(storeId);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
+        }catch(Exception e){
+        	throw new ParameterValidationException("clientSn 无效");
         }
     }
     @Override
@@ -371,11 +373,15 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     @Override
     public Map<String, Object> getTerminal(Map<String, Object> request) throws ProxyAutoException {
         try {
+        	
+        	
         	String clientTerminalSn = request.get(Terminal.CLIENT_SN).toString();
         	String terminalId = theMap.getTerminalId(clientTerminalSn);
             return proxyCore.getTerminal(terminalId);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
+        }catch(Exception e){
+        	throw new ParameterValidationException("clientSn无效");
         }
 
     }
