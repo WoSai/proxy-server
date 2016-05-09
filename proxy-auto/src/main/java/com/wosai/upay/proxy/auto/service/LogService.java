@@ -157,7 +157,7 @@ public class LogService {
 	 * @param terminalSn
 	 */
 	public void remove(String terminalSn) {
-		BufferedWriter bw = writerMap.get(terminalSn);
+   		BufferedWriter bw = writerMap.get(terminalSn);
 		synchronized(writerMap){
 			if(bw!=null){
 				synchronized(bw){
