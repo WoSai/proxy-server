@@ -72,13 +72,19 @@ public class ProxyCoreController {
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success(Object serviceResult) {
-        return CollectionUtil.hashMap("result", "200",
-                                      "data", serviceResult);
+        return CollectionUtil.hashMap("result_code", "200",
+                                      "biz_response", CollectionUtil.hashMap(
+                                    		  "result_code","SUCCESS",
+                                    		  "data",serviceResult
+                                    		  ));
     }
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success() {
-        return CollectionUtil.hashMap("result", "200");
+    	return CollectionUtil.hashMap("result_code", "200",
+                "biz_response", CollectionUtil.hashMap(
+              		  "result_code","SUCCESS"
+              		  ));
     }
 
     @SuppressWarnings("unchecked")
