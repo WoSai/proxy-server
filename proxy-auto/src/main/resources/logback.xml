@@ -26,7 +26,7 @@
 
     <!-- ROOT appender -->
     <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.MyTimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logdir:-.}/proxy-auto-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
@@ -40,6 +40,7 @@
 
     <root level="debug">
         <appender-ref ref="console"/>
+    	<appender-ref ref="fileAppender"/>
     </root>
 
 	<logger name="org.springframework.remoting.support.RemoteInvocationTraceInterceptor" level="error"/>
