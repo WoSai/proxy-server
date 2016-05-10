@@ -33,11 +33,11 @@ public class ProxyObjectMap {
      */
     public Advice consult(String clientMerchantSn, String clientStoreSn, String clientTerminalSn) {
     	//组织终端查询条件
-    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
+    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
 
     	//组织门店查询条件
-    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).like(clientStoreSn);
+    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).is(clientStoreSn);
     	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
 
     	
@@ -86,7 +86,7 @@ public class ProxyObjectMap {
                     String clientTerminalSn,
                     String terminalSn) {
     	//组织门店查询条件
-    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).like(clientStoreSn);
+    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).is(clientStoreSn);
     	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
     	if(store==null){
     		store=new HashMap<String,Object>();
@@ -102,7 +102,7 @@ public class ProxyObjectMap {
     	}
     	
     	//组织终端查询条件
-    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
+    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
     	if(terminal==null){
     		terminal=new HashMap<String,Object>();
@@ -166,7 +166,7 @@ public class ProxyObjectMap {
     public void updateTerminal(String clientMerchantSn,String clientStoreSn,String clientTerminalSn){
     	if(clientStoreSn!=null){
         	//组织终端查询条件
-        	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
+        	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn);
         	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
         	
         	terminal.put(ClientTerminal.CLIENT_STORE_SN, clientStoreSn);
@@ -209,7 +209,7 @@ public class ProxyObjectMap {
     @Cacheable("get_store")
     public Map<String,Object> getStore(String clientStoreSn) {
     	//组织门店查询条件
-    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).like(clientStoreSn);
+    	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).is(clientStoreSn);
     	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
         return store;
     }
@@ -242,7 +242,7 @@ public class ProxyObjectMap {
     @Cacheable("get_terminal")
     public Map<String,Object> getTerminal(String clientTerminalSn) {
     	//组织终端查询条件
-    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).like(clientTerminalSn);
+    	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
         return terminal;
     }
@@ -279,7 +279,7 @@ public class ProxyObjectMap {
     		clientMerchantSn="";
 		}
     	//组织商户查询条件
-    	Criteria merchantCriteria=Criteria.where(ClientMerchant.CLIENT_MERCHANT_SN).like(clientMerchantSn);
+    	Criteria merchantCriteria=Criteria.where(ClientMerchant.CLIENT_MERCHANT_SN).is(clientMerchantSn);
     	Map<String,Object> merchant=merchantMapDao.filter(merchantCriteria).fetchOne();
         return merchant;
     }
