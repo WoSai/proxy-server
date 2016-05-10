@@ -16,8 +16,8 @@ public class ResponseUtil {
             return (Map<String,Object>)result.get(Response.BIZ_RESPONSE);
 
         } else {
-            throw new ResponseResolveException((String)result.get(Response.ERROR_CODE),
-                                               (String)result.get(Response.ERROR_MESSAGE));
+            throw new ResponseResolveException(String.valueOf(result.get(Response.ERROR_CODE)),
+            			String.valueOf(result.get(Response.ERROR_MESSAGE)));
         }
         
     }
@@ -35,8 +35,8 @@ public class ResponseUtil {
         if (!bizResultCode.contains("FAIL")) {
             return (Map<String,Object>)bizResponse.get(Response.DATA);
         }else{
-            throw new ResponseResolveException((String)bizResponse.get(Response.ERROR_CODE),
-                                               (String)bizResponse.get(Response.ERROR_MESSAGE));
+            throw new ResponseResolveException(String.valueOf(bizResponse.get(Response.ERROR_CODE)),
+            		String.valueOf(bizResponse.get(Response.ERROR_MESSAGE)));
         }
         
     }
