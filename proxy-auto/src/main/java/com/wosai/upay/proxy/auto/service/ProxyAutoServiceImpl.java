@@ -186,7 +186,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }
     }
     @Override
-    public void updateStore(Map<String, Object> request)
+    public Map<String, Object> updateStore(Map<String, Object> request)
             throws ProxyAutoException {
     	try{
     		//根据clientStoreId获取storeId
@@ -212,7 +212,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	for(ClientOrderStore value:values){
         		this.transferMap(request, param, value.getValue(), value.getMap());
         	}
-            proxyCore.updateStore(param);
+            return proxyCore.updateStore(param);
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
@@ -277,7 +277,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     }
     
     @Override
-    public void updateTerminal(Map<String, Object> request)
+    public Map<String, Object> updateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
 
     	String clientStoreSn=null,clientTerminalSn=null,clientMerchantSn=null,terminalId=null;
@@ -311,12 +311,14 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	for(ClientOrderTerminal value:values){
         		this.transferMap(request, param, value.getValue(), value.getMap());
         	}
-            proxyCore.updateTerminal(param);
+        	Map<String, Object> result = proxyCore.updateTerminal(param);
             
             
             //本地入库
         	clientTerminalSn=request.get(ClientOrderTerminal.CLIENT_SN.toString()).toString();
         	theMap.updateTerminal(clientMerchantSn, clientStoreSn, clientTerminalSn);
+        	
+        	return result;
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }

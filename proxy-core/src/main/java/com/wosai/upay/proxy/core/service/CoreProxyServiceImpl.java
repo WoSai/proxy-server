@@ -23,10 +23,10 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     }
 
     @Override
-    public void updateStore(Map<String, Object> request)
+    public Map<String, Object> updateStore(Map<String, Object> request)
             throws ProxyCoreException {
     	
-    	vendorApi.updateStore(request);
+    	return vendorApi.updateStore(request);
     }
 
     @Override
@@ -42,10 +42,10 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     }
 
     @Override
-    public void updateTerminal(Map<String, Object> request)
+    public Map<String, Object> updateTerminal(Map<String, Object> request)
             throws ProxyCoreException {
 
-    	vendorApi.updateTerminal(request);
+    	return vendorApi.updateTerminal(request);
         
     }
     

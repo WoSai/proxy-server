@@ -60,10 +60,10 @@ public class VendorApiFacade {
     }
 
 
-	public void updateStore(Map<String, Object> request) {
+	public Map<String, Object> updateStore(Map<String, Object> request) {
 		try {
         	String url = updateStoreApiUrl;
-            resolve2(client.call(vendorSn, vendorKey, url, request));
+            return resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call updateStore api.", ex);
         }
@@ -100,12 +100,12 @@ public class VendorApiFacade {
     }
 
 
-	public void updateTerminal(Map<String, Object> request) {
+	public Map<String, Object> updateTerminal(Map<String, Object> request) {
 		try {
 			//创建接口的vendor_app_id字段和更新接口的vendor_app_appid有什么区别？
 //        	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
         	String url = updateTerminalApiUrl;
-            resolve2(client.call(vendorSn, vendorKey, url, request));
+            return resolve2(client.call(vendorSn, vendorKey, url, request));
         }catch(IOException ex) {
             throw new VendorApiException("Failed to call updateTerminal api.", ex);
         }

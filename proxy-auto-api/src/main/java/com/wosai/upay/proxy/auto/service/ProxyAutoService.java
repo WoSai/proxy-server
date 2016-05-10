@@ -15,11 +15,11 @@ public interface ProxyAutoService {
     Map<String, Object> cancel(Map<String, Object> request) throws ProxyAutoException;
     
     Map<String, Object> createStore(Map<String, Object> request) throws ProxyAutoException;
-    void updateStore(Map<String, Object> request)  throws ProxyAutoException;
+    Map<String, Object> updateStore(Map<String, Object> request)  throws ProxyAutoException;
     Map<String, Object> getStore(Map<String, Object> request) throws ProxyAutoException;
 
     Map<String, Object> createTerminal(Map<String, Object> request) throws ProxyAutoException;
-    void updateTerminal(Map<String, Object> request) throws ProxyAutoException;
+    Map<String, Object> updateTerminal(Map<String, Object> request) throws ProxyAutoException;
     Map<String, Object> getTerminal(Map<String, Object> request) throws ProxyAutoException;
 	Map<String, Object> activateTerminal(Map<String, Object> request) throws ProxyAutoException;
 	void uploadLog() throws ProxyAutoException;
