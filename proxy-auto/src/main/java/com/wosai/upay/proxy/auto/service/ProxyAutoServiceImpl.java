@@ -159,7 +159,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			String merchantId=theMap.getMerchantId(clientMerchantSn);
 			request.put(Store.MERCHANT_ID, merchantId);
 		}catch(Exception e){
-			throw new ParameterValidationException("client_merchant_sn无效");
+			throw new ParameterValidationException("invalid client_merchant_sn");
 		}
     	
     	//服务端入库
@@ -193,7 +193,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     		String clientStoreSn=(String)request.get(ClientOrderStore.CLIENT_SN.toString());
     		String storeId = theMap.getStoreId(clientStoreSn);
     		request.put(Store.ID, storeId);
-    		
+
+		}catch(Exception e){
+			throw new ParameterValidationException("invalid client_sn");
+		}	
+    	try{
 			//获取获取本地商家信息
     		String clientMerchantSn=(String)request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString());
     		//更新时,merchantId可以为空
@@ -202,7 +206,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     			request.put(Store.MERCHANT_ID, merchantId);
     		}
 		}catch(Exception e){
-			throw new ParameterValidationException("client_merchant_sn无效");
+			throw new ParameterValidationException("invalid client_merchant_sn");
 		}
     	
     	//服务端入库
@@ -227,7 +231,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
-        	throw new ParameterValidationException("clientSn 无效");
+        	throw new ParameterValidationException("invalid clientSn");
         }
     }
     @Override
@@ -240,7 +244,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			String storeSn=theMap.getStoreSn(clientStoreSn);
 			request.put(Terminal.STORE_SN, storeSn);
     	}catch(Exception e){
-			throw new ParameterValidationException("clientStoreSn无效");
+			throw new ParameterValidationException("invalid clientStoreSn");
     	}
     	
     	
@@ -300,7 +304,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 	    	}
 	
 		}catch(Exception e){
-			throw new ParameterValidationException("clientStoreSn无效");
+			throw new ParameterValidationException("invalid clientStoreSn");
 		}
 		
         try {
@@ -383,7 +387,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
-        	throw new ParameterValidationException("clientSn无效");
+        	throw new ParameterValidationException("invalid clientSn");
         }
 
     }

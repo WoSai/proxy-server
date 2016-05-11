@@ -35,15 +35,13 @@ public class ProxyAutoV2Controller {
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params,HttpServletRequest request) {
-    	Map<String, Object> result = proxyService.createStore(params);
-        return result;
+    	return success(proxyService.createStore(params));
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> updateStore(@RequestBody Map<String, Object> params,HttpServletRequest request) {
-        proxyService.updateStore(params);
-        return success();
+        return success(proxyService.updateStore(params));
     }
 
     @RequestMapping(value="/store/get", method=RequestMethod.POST, produces="application/json")
@@ -56,16 +54,14 @@ public class ProxyAutoV2Controller {
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params,HttpServletRequest request) {
-    	Map<String, Object> result = proxyService.createTerminal(params);
-        return result;
+        return success(proxyService.createTerminal(params));
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> updateTerminal(@RequestBody Map<String, Object> params,HttpServletRequest request) {
         
-        proxyService.updateTerminal(params);
-        return success();
+        return success(proxyService.updateTerminal(params));
     }
 
     @RequestMapping(value="/terminal/get", method=RequestMethod.POST, produces="application/json")
