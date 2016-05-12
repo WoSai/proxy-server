@@ -31,37 +31,37 @@ public class ProxyUpayController {
     @RequestMapping(value="/pay", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> pay(@RequestBody Map<String, Object> params) {
-        return proxyService.pay(params);
+        return success(proxyService.pay(params));
     }
 
-    @RequestMapping(value="/precreate", method=RequestMethod.POST, produces="application/json")
+    @RequestMapping(value="/preCreate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> preceate(@RequestBody Map<String, Object> params) {
-        return proxyService.precreate(params);
+        return success(proxyService.precreate(params));
     }
 
     @RequestMapping(value="/query", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> query(@RequestBody Map<String, Object> params) {
-        return proxyService.query(params);
+        return success(proxyService.query(params));
     }
 
     @RequestMapping(value="/refund", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> refund(@RequestBody Map<String, Object> params) {
-        return proxyService.refund(params);
+        return success(proxyService.refund(params));
     }
 
     @RequestMapping(value="/revoke", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> revoke(@RequestBody Map<String, Object> params) {
-        return proxyService.revoke(params);
+        return success(proxyService.revoke(params));
     }
 
     @RequestMapping(value="/cancel", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> cancel(@RequestBody Map<String, Object> params) {
-        return proxyService.cancel(params);
+        return success(proxyService.cancel(params));
     }
 
     @RequestMapping(value="/init", method=RequestMethod.POST, produces="application/json")
@@ -76,10 +76,7 @@ public class ProxyUpayController {
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success(Object serviceResult) {
         return CollectionUtil.hashMap("result_code", "200",
-                                      "biz_response", CollectionUtil.hashMap(
-                                    		  "result_code","SUCCESS",
-                                    		  "data",serviceResult
-                                    		  ));
+                                      "biz_response", serviceResult);
     }
 
     @SuppressWarnings("unchecked")

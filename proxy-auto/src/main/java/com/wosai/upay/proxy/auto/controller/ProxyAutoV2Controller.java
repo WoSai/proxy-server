@@ -97,7 +97,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.pay(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -114,7 +114,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.precreate(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -131,7 +131,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.query(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -148,7 +148,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.refund(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -165,7 +165,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.revoke(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -182,7 +182,7 @@ public class ProxyAutoV2Controller {
         String level = "info";
         try{
 	    	Map<String, Object> result = proxyService.cancel(params);
-	        return result;
+	        return successUpay(result);
         }catch(Exception e){
         	level = "error";
         	throw e;
@@ -201,6 +201,13 @@ public class ProxyAutoV2Controller {
                                     		  ));
     }
 
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> successUpay(Object serviceResult) {
+        return CollectionUtil.hashMap("result_code", "200",
+                                      "biz_response", serviceResult);
+    }
+    
     @SuppressWarnings("unchecked")
     private static Map<String, Object> success() {
     	return CollectionUtil.hashMap("result_code", "200",
