@@ -17,6 +17,7 @@ public enum ClientOrderTerminal {
 	EXTRA("extra"),
 	TARGET("target"),
 	TARGET_TYPE("target_type"),
+	TERMINAL_ID("terminal_id"),
 	STORE_ID("store_id"),
 	STORE_SN("store_sn"),
 	CLIENT_STORE_SN("client_store_sn",null),

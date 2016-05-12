@@ -329,6 +329,57 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 
     }
     
+
+    
+    @Override
+    public Map<String, Object> moveTerminal(Map<String, Object> request)
+            throws ProxyAutoException {
+
+    	String clientStoreSn=null,clientTerminalSn=null,clientMerchantSn=null,terminalId=null;
+
+    	try{
+	    	//初始化本地映射的参数
+    		
+    		//根据clientTerminalSn获取terminalId
+        	clientTerminalSn=(String)request.get(ClientOrderTerminal.CLIENT_SN.toString());
+    		terminalId = theMap.getTerminalId(clientTerminalSn);
+    		request.put(Terminal.TERMINAL_ID, terminalId);
+    		
+    		//根据clientStoreSn获取storeId
+    		clientStoreSn=(String)request.get(ClientOrderTerminal.CLIENT_STORE_SN.toString());
+	    	if(clientStoreSn!=null){
+	    		String storeId=theMap.getStoreId(clientStoreSn);
+	    		request.put(Terminal.STORE_ID, storeId);
+	    		
+	        	clientMerchantSn = theMap.getClientMerchantSn(clientStoreSn);
+	    	}
+	
+		}catch(Exception e){
+			throw new ParameterValidationException("invalid clientStoreSn");
+		}
+		
+        try {
+        	//服务端入库
+        	//参数过滤，过滤多余的参数
+        	Map<String,Object> param=new HashMap<String,Object>();
+        	ClientOrderTerminal[] values=ClientOrderTerminal.values();
+        	for(ClientOrderTerminal value:values){
+        		this.transferMap(request, param, value.getValue(), value.getMap());
+        	}
+        	Map<String, Object> result = proxyCore.moveTerminal(param);
+            
+            
+            //本地入库
+        	clientTerminalSn=request.get(ClientOrderTerminal.CLIENT_SN.toString()).toString();
+        	theMap.updateTerminal(clientMerchantSn, clientStoreSn, clientTerminalSn);
+        	
+        	return result;
+        }catch(ProxyCoreException ex) {
+            throw new ProxyCoreDependencyException(ex.getMessage(), ex);
+        }
+
+    }
+    
     @Override
     public Map<String, Object> activateTerminal(Map<String, Object> request)
             throws ProxyAutoException {
@@ -436,7 +487,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			try{
 				//更新终端
 				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				this.updateTerminal(clientTerminal);
+				this.moveTerminal(clientTerminal);
 			}catch(Exception e){
 				logger.debug("update terminal faild.");
 				throw new ProxyCoreDependencyException("update terminal faild.", e);
@@ -479,9 +530,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			logger.debug("create store success.");
 			
 			try{
-				//更新终端
+				//移机
 				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				this.updateTerminal(clientTerminal);
+				this.moveTerminal(clientTerminal);
 			}catch(Exception e){
 				logger.debug("update terminal faild.");
 				throw new ProxyCoreDependencyException("update terminal faild.", e);

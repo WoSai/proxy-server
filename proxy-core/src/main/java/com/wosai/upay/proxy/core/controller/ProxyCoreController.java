@@ -59,6 +59,13 @@ public class ProxyCoreController {
         
     }
 
+    @RequestMapping(value="/terminal/move", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public Map<String, Object> moveTerminal(@RequestBody Map<String, Object> params) {
+    	return success(proxyService.moveTerminal(params));
+        
+    }
+
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {

@@ -57,6 +57,12 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     }
 
     @Override
+    public Map<String, Object> moveTerminal(Map<String, Object> request) throws ProxyCoreException {
+
+    	return vendorApi.moveTerminal(request);
+    }
+
+    @Override
     public Map<String, Object> getTerminal(String terminalId) throws ProxyCoreException {
 
     	return vendorApi.getTerminal(terminalId);

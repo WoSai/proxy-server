@@ -33,6 +33,7 @@ public class VendorApiFacade {
     private String createTerminalApiUrl;
     private String updateTerminalApiUrl;
     private String getTerminalApiUrl;
+    private String moveTerminalApiUrl;
     private String activateTerminalApiUrl;
 
     @Autowired
@@ -123,6 +124,16 @@ public class VendorApiFacade {
         }
 	}
 
+
+	public Map<String, Object> moveTerminal(Map<String, Object> request) {
+		try {
+        	String url = moveTerminalApiUrl;
+            return resolve2(client.call(vendorSn, vendorKey, url, request));
+        }catch(IOException ex) {
+            throw new VendorApiException("Failed to call moveTerminal api.", ex);
+        }
+	}
+
 	
 	public Map<String,Object> activateTerminal(@PropNotEmpty.List({
         @PropNotEmpty(Terminal.CODE)
@@ -204,6 +215,11 @@ public class VendorApiFacade {
 
 	public void setVendorAppId(String vendorAppId) {
 		this.vendorAppId = vendorAppId;
+	}
+
+
+	public void setMoveTerminalApiUrl(String moveTerminalApiUrl) {
+		this.moveTerminalApiUrl = moveTerminalApiUrl;
 	}
     
 }

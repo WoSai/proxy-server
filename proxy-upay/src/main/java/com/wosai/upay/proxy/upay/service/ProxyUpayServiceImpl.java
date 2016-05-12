@@ -316,6 +316,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		    try {
 		    	logger.debug(terminalSn+" is signing ");
     		    Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
+		    	logger.debug(terminalSn+"_"+terminalKey+"_"+deviceId+" signing result: "+response);
     		    Map<String,Object> responseBiz = (Map<String,Object>) response.get(Response.BIZ_RESPONSE);
     		    if(responseBiz==null){
                     logger.debug("responseBiz is null");
