@@ -17,6 +17,8 @@ import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.core.exception.ProxyCoreBizException;
 import com.wosai.upay.proxy.core.exception.ProxyCoreClientException;
 import com.wosai.upay.proxy.core.exception.ProxyCoreSystemException;
+import com.wosai.upay.proxy.core.model.Store;
+import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
 
 @Controller
@@ -29,45 +31,44 @@ public class ProxyCoreController {
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
-        return proxyService.createStore(params);
+    	return success(proxyService.createStore(params));
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> updateStore(@RequestBody Map<String, Object> params) {
-        proxyService.updateStore(params);
-        return success();
+    	return success(proxyService.updateStore(params));
     }
 
-    @RequestMapping(value="/store/get/{sn}", method=RequestMethod.GET)
+    @RequestMapping(value="/store/get", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> getStore(@PathVariable String sn) {
-        return proxyService.getStore(sn);
+    public Map<String, Object> getStore(@RequestBody Map<String, Object> params) {
+    	return success(proxyService.getStore((String)params.get(Store.ID)));
     }
 
     @RequestMapping(value="/terminal/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
-        return proxyService.createTerminal(params);
+    	return success(proxyService.createTerminal(params));
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> updateTerminal(@RequestBody Map<String, Object> params) {
-        proxyService.updateTerminal(params);
-        return success();
+    	return success(proxyService.updateTerminal(params));
+        
     }
 
     @RequestMapping(value="/terminal/activate", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> activateTerminal(@RequestBody Map<String, Object> params) {
-        return proxyService.activateTerminal(params);
+    	return success(proxyService.activateTerminal(params));
     }
 
-    @RequestMapping(value="/terminal/get/{sn}", method=RequestMethod.GET)
+    @RequestMapping(value="/terminal/get", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
-    public Map<String, Object> getTerminal(@PathVariable String sn) {
-        return proxyService.getTerminal(sn);
+    public Map<String, Object> getTerminal(@RequestBody Map<String, Object> params) {
+    	return success(proxyService.getTerminal((String)params.get(Terminal.ID)));
     }
 
     @SuppressWarnings("unchecked")
