@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayBizException;
+import com.wosai.upay.proxy.upay.exception.ProxyUpayClientException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpaySystemException;
 import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
@@ -90,18 +91,12 @@ public class ProxyUpayController {
     }
 
     @SuppressWarnings("unchecked")
-    @ExceptionHandler(MethodConstraintViolationException.class)
+    @ExceptionHandler(ProxyUpayClientException.class)
     @ResponseBody
-    public Map<String, Object> handleValidationException(MethodConstraintViolationException ex) {
-        StringBuilder sb = new StringBuilder();
-        for(MethodConstraintViolation<?> violation: ex.getConstraintViolations()) {
-            if (sb.length() > 0)
-                sb.append("\n");
-            sb.append(violation.getMessage());
-        }
+    public Map<String, Object> handleClientException(ProxyUpayClientException ex) {
         return CollectionUtil.hashMap("result", "400",
-                                      "error_code", "INVALID_PARAMS",
-                                      "error_message", sb.toString());
+                                      "error_code", ex.getCode(),
+                                      "error_message", ex.getMessage());
 
     }
 
@@ -109,7 +104,7 @@ public class ProxyUpayController {
     @ExceptionHandler(ProxyUpayBizException.class)
     @ResponseBody
     public Map<String, Object> handleBizException(ProxyUpayBizException ex) {
-        return CollectionUtil.hashMap("result", "500",
+        return CollectionUtil.hashMap("result", "600",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -118,8 +113,7 @@ public class ProxyUpayController {
     @ExceptionHandler(ProxyUpaySystemException.class)
     @ResponseBody
     public Map<String, Object> handleSystemException(ProxyUpaySystemException ex) {
-        logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result", "500",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -128,7 +122,6 @@ public class ProxyUpayController {
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     public Map<String, Object> handleUnknownError(Throwable ex) {
-        logger.error("Unknown system error.", ex);
         return CollectionUtil.hashMap("result", "-1",
                                       "error_code",  "UNKNOWN_SYSTEM_ERROR",
                                       "error_message", ex.getMessage());

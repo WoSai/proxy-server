@@ -1,4 +1,4 @@
-package com.wosai.upay.proxy.helper;
+package com.wosai.upay.proxy.upay.helper;
 
 import java.lang.annotation.Annotation;
 

@@ -4,15 +4,22 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
 import com.wosai.upay.httpclient.UpayHttpClient;
+import com.wosai.upay.proxy.core.exception.VendorApi400;
+import com.wosai.upay.proxy.core.exception.VendorApi500;
+import com.wosai.upay.proxy.core.exception.VendorApiBizError;
 import com.wosai.upay.proxy.core.exception.VendorApiException;
+import com.wosai.upay.proxy.core.exception.VendorApiIOException;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
-import com.wosai.upay.proxy.exception.BizResponseResolveException;
-import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.exception.RemoteResponse400;
+import com.wosai.upay.proxy.exception.RemoteResponse500;
+import com.wosai.upay.proxy.exception.RemoteResponseBizError;
 import com.wosai.upay.proxy.util.ResponseUtil;
 import com.wosai.upay.validation.PropNotEmpty;
 
@@ -24,6 +31,9 @@ import com.wosai.upay.validation.PropNotEmpty;
 @Validated
 public class VendorApiFacade {
 	private String vendorAppId;
+
+    private static final Logger logger = LoggerFactory.getLogger(VendorApiFacade.class);
+
     private String vendorSn;
     private String vendorKey;
     
@@ -52,34 +62,20 @@ public class VendorApiFacade {
 						        @PropNotEmpty(Store.CONTACT_CELLPHONE)
 						      })
                               Map<String, Object> request) throws VendorApiException {
-        try {
-        	String url = createStoreApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call createStore api.", ex);
-        }
+        
+        return call2(createStoreApiUrl, request);
     }
 
 
 	public Map<String, Object> updateStore(Map<String, Object> request) {
-		try {
-        	String url = updateStoreApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call updateStore api.", ex);
-        }
+        return call2(updateStoreApiUrl, request);
 	}
 
 
 	public Map<String, Object> getStore(String storeId) {
-		try {
-			Map<String,Object> map=new HashMap<String,Object>();
-			map.put(Store.ID, storeId);
-        	String url = getStoreApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, map));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call getStore api.", ex);
-        }
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put(Store.ID, storeId);
+        return call2(getStoreApiUrl, map);
 	}
     
 
@@ -90,48 +86,26 @@ public class VendorApiFacade {
         @PropNotEmpty(Terminal.STORE_SN)
       })
                               Map<String, Object> request) throws VendorApiException {
-    	try {
-
-        	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
-        	String url = createTerminalApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call createTerminal api.", ex);
-        }
+    	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
+        return call2(createTerminalApiUrl, request);
     }
 
 
 	public Map<String, Object> updateTerminal(Map<String, Object> request) {
-		try {
-			//创建接口的vendor_app_id字段和更新接口的vendor_app_appid有什么区别？
-//        	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
-        	String url = updateTerminalApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call updateTerminal api.", ex);
-        }
+		return call2(updateTerminalApiUrl, request);
 	}
 
 
 	public Map<String, Object> getTerminal(String terminalId) {
-		try {
-			Map<String,Object> map=new HashMap<String,Object>();
-			map.put(Terminal.ID, terminalId);
-        	String url = getTerminalApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, map));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call getTerminal api.", ex);
-        }
+
+		Map<String,Object> request=new HashMap<String,Object>();
+		request.put(Terminal.ID, terminalId);
+		return call2(getTerminalApiUrl, request);
 	}
 
 
 	public Map<String, Object> moveTerminal(Map<String, Object> request) {
-		try {
-        	String url = moveTerminalApiUrl;
-            return resolve2(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call moveTerminal api.", ex);
-        }
+		return call2(moveTerminalApiUrl, request);
 	}
 
 	
@@ -139,33 +113,52 @@ public class VendorApiFacade {
         @PropNotEmpty(Terminal.CODE)
       })
                               Map<String, Object> request) throws VendorApiException {
-    	try {
-        	String url = activateTerminalApiUrl;
-            return resolve1(client.call(vendorSn, vendorKey, url, request));
-        }catch(IOException ex) {
-            throw new VendorApiException("Failed to call activateTerminal api.", ex);
-        }
-    }
+	    
+	    return call1(activateTerminalApiUrl, request);
+
+	}
     
-    private Map<String, Object> resolve1(Map<String, Object> result) {
-        try {
-            return ResponseUtil.resolve1(result);
+	private Map<String, Object> call1(String url, Map<String, Object> request) throws VendorApiException {
+	    try {
+            return ResponseUtil.resolve1(client.call(vendorSn, vendorKey, url, request));
 
-        } catch (ResponseResolveException e) {
-            throw new VendorApiException(String.format("Vendor API response has error - %s : %s", e.getCode(), e.getMessage()));
+	    } catch (RemoteResponse400 e) {
+
+            logger.error(String.format("Vendor API %s specification might have changed. contact developer.", url), e);
+            throw new VendorApi400(String.format("Vendor API 400 %s : %s", e.getCode(), e.getMessage()), e);
+
+        } catch (RemoteResponse500 e) {
+
+            logger.error(String.format("Vendor API %s service unavailable.", url), e);
+            throw new VendorApi500(String.format("Vendor API 500 %s : %s", e.getCode(), e.getMessage()), e);
+
+        } catch (IOException e) {
+
+            logger.error(String.format("Vendor API %s failed on i/o.", url), e);
+            throw new VendorApiIOException(String.format("Vendor API %s failed on i/o.", url), e);
 
         }
-    }
+	}
 
-    private Map<String, Object> resolve2(Map<String, Object> result) {
+    private Map<String, Object> call2(String url, Map<String, Object> request) throws VendorApiException {
         try {
-            return ResponseUtil.resolve2(result);
+            return ResponseUtil.resolve2(client.call(vendorSn, vendorKey, url, request));
 
-        } catch (ResponseResolveException e) {
-            throw new VendorApiException(String.format("Vendor API response has error - %s : %s", e.getCode(), e.getMessage()));
+        } catch (RemoteResponse400 e) {
+            logger.error(String.format("Vendor API %s specification might have changed. contact developer.", url), e);
+            throw new VendorApi400(String.format("Vendor API 400 %s : %s", e.getCode(), e.getMessage()), e);
 
-        } catch (BizResponseResolveException e) {
-            throw new VendorApiException(String.format("Vendor API biz response has error - %s : %s", e.getCode(), e.getMessage()));
+        } catch (RemoteResponse500 e) {
+            logger.error(String.format("Vendor API %s service unavailable.", url), e);
+            throw new VendorApi500(String.format("Vendor API 500 %s : %s", e.getCode(), e.getMessage()), e);
+
+        } catch (RemoteResponseBizError e) {
+            logger.warn(String.format("Vendor API %s returns biz error", url), e);
+            throw new VendorApiBizError(String.format("Vendor API BizError %s : %s", e.getCode(), e.getMessage()), e);
+
+        } catch (IOException e) {
+            logger.error(String.format("Vendor API %s failed on i/o.", url), e);
+            throw new VendorApiIOException(String.format("Vendor API %s failed on i/o.", url), e);
 
         }
     }

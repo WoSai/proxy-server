@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.core.exception;
 
-public class VendorApiException extends ProxyCoreSystemException {
+public abstract class VendorApiException extends ProxyCoreSystemException {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,9 +14,5 @@ public class VendorApiException extends ProxyCoreSystemException {
         this(null, cause);
     }
 
-    @Override
-    public String getCode() {
-        return "VENDOR_API_EXCEPTION";
-    }
 
 }

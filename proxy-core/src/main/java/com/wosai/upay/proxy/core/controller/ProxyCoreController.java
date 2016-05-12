@@ -31,7 +31,7 @@ public class ProxyCoreController {
     @RequestMapping(value="/store/create", method=RequestMethod.POST, produces="application/json")
     @ResponseBody
     public Map<String, Object> createStore(@RequestBody Map<String, Object> params) {
-    	return success(proxyService.createStore(params));
+        return success(proxyService.createStore(params));
     }
 
     @RequestMapping(value="/store/update", method=RequestMethod.POST, produces="application/json")
@@ -50,6 +50,7 @@ public class ProxyCoreController {
     @ResponseBody
     public Map<String, Object> createTerminal(@RequestBody Map<String, Object> params) {
     	return success(proxyService.createTerminal(params));
+
     }
 
     @RequestMapping(value="/terminal/update", method=RequestMethod.POST, produces="application/json")
@@ -98,7 +99,7 @@ public class ProxyCoreController {
     @SuppressWarnings("unchecked")
     @ExceptionHandler(ProxyCoreClientException.class)
     @ResponseBody
-    public Map<String, Object> handleValidationException(ProxyCoreClientException ex) {
+    public Map<String, Object> handleClientException(ProxyCoreClientException ex) {
         return CollectionUtil.hashMap("result", "400",
                                       "error_code", ex.getCode(),
                                       "error_message", ex.getMessage());
@@ -109,7 +110,7 @@ public class ProxyCoreController {
     @ExceptionHandler(ProxyCoreBizException.class)
     @ResponseBody
     public Map<String, Object> handleBizException(ProxyCoreBizException ex) {
-        return CollectionUtil.hashMap("result", "500",
+        return CollectionUtil.hashMap("result", "600",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -118,8 +119,7 @@ public class ProxyCoreController {
     @ExceptionHandler(ProxyCoreSystemException.class)
     @ResponseBody
     public Map<String, Object> handleSystemException(ProxyCoreSystemException ex) {
-        logger.error("System exception.", ex);
-        return CollectionUtil.hashMap("result", "-1",
+        return CollectionUtil.hashMap("result", "500",
                                       "error_code",  ex.getCode(),
                                       "error_message", ex.getMessage());
     }
@@ -128,7 +128,6 @@ public class ProxyCoreController {
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     public Map<String, Object> handleUnknownError(Throwable ex) {
-        logger.error("Unknown system error.", ex);
         return CollectionUtil.hashMap("result", "-1",
                                       "error_code",  "UNKNOWN_SYSTEM_ERROR",
                                       "error_message", ex.getMessage());

@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.upay.exception;
 
-public class ParameterValidationException extends ProxyUpayException {
+public class ParameterValidationException extends ProxyUpayClientException {
     private static final long serialVersionUID = 1L;
 
     public ParameterValidationException(String message, Throwable cause) {

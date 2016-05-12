@@ -4,16 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.wosai.data.dao.Criteria;
 import com.wosai.data.dao.Dao;
+import com.wosai.data.util.CollectionUtil;
 import com.wosai.upay.proxy.auto.model.ClientMerchant;
 import com.wosai.upay.proxy.auto.model.ClientStore;
 import com.wosai.upay.proxy.auto.model.ClientTerminal;
 import com.wosai.upay.proxy.util.StringUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 
 public class ProxyObjectMap {
 
@@ -31,7 +35,8 @@ public class ProxyObjectMap {
      * @param clientTerminalSn
      * @return
      */
-    public Advice consult(String clientMerchantSn, String clientStoreSn, String clientTerminalSn) {
+    public int consult(String clientMerchantSn, String clientStoreSn, String clientTerminalSn) {
+    	
     	//组织终端查询条件
     	Criteria terminalCriteria=Criteria.where(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn);
     	Map<String,Object> terminal=terminalMapDao.filter(terminalCriteria).fetchOne();
@@ -256,7 +261,48 @@ public class ProxyObjectMap {
     	Map<String,Object> store=getStore(clientStoreSn);
         return store.get(ClientStore.CLIENT_MERCHANT_SN).toString();
     }
+
+    @Cacheable(value="terminals")
+    public String getTerminalSn(String clientMerchantSn, String clientStoreSn, String clientTerminalSn) {
+        Map<String, Object> terminal = terminalMapDao.filter(Criteria.where(ClientTerminal.CLIENT_MERCHANT_SN).is(clientMerchantSn)
+                                                             .with(ClientTerminal.CLIENT_STORE_SN).is(clientStoreSn)
+                                                             .with(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn)).fetchOne();
+        if (terminal != null) {
+            return (String)terminal.get(ClientTerminal.TERMINAL_SN);
+        }else{
+            return null;
+        }
+    }
     
+    public void setStoreMap(String clientMerchantSn, String clientStoreSn, String storeSn) {
+        Map<String, Object> store = (Map <String,Object>)CollectionUtil.hashMap(ClientStore.ID, UUID.randomUUID().toString());
+        store.put(ClientStore.CLIENT_MERCHANT_SN, clientMerchantSn);
+        store.put(ClientStore.CLIENT_STORE_SN, clientStoreSn);
+        store.put(ClientStore.STORE_SN, storeSn);
+        storeMapDao.save(store);
+    }
+
+    @Transactional(isolation=Isolation.REPEATABLE_READ)
+    public synchronized void setTerminalMap(String clientMerchantSn, String clientStoreSn, String clientTerminalSn, String terminalSn) {
+        Map<String, Object> terminal = terminalMapDao.filter(Criteria.where(ClientTerminal.CLIENT_MERCHANT_SN).is(clientMerchantSn)
+                                                             .with(ClientTerminal.CLIENT_TERMINAL_SN).is(clientTerminalSn)).fetchOne();
+        if (terminal == null) {
+            terminal = CollectionUtil.hashMap(ClientTerminal.ID, UUID.randomUUID().toString());
+            terminal.put(ClientTerminal.CLIENT_MERCHANT_SN, clientMerchantSn);
+            terminal.put(ClientTerminal.CLIENT_STORE_SN, clientStoreSn);
+            terminal.put(ClientTerminal.CLIENT_TERMINAL_SN, clientTerminalSn);
+            terminal.put(ClientTerminal.TERMINAL_SN, terminalSn);
+            terminalMapDao.save(terminal);
+        }else {
+            terminal.put(ClientTerminal.CLIENT_STORE_SN, clientStoreSn);
+            terminalMapDao.updatePart(terminal);
+        }
+    }
+
+    @CacheEvict(value="terminals")
+    public void evictTerminalSnCache(String clientMerchantSn, String clientStoreSn, String clientTerminalSn) {
+    }
+
     /**
      * 根据store的client_sn从映射表中查询store的id
      * @param clientMerchantSn
@@ -296,11 +342,34 @@ public class ProxyObjectMap {
 		this.merchantMapDao = merchantMapDao;
 	}
 
-	public static enum Advice {
-        NOOP,                           // 门店和终端在映射表中存在，并且归属关系没有变化
-        CREATE_STORE_AND_MOVE_TERMINAL, // 门店不存在但是终端存在。创建门店改变终端归属
-        CREATE_STORE_AND_TERMINAL,      // 门店和终端都不存在。创建门店和终端
-        CREATE_TERMINAL,                // 门店存在但是终端不存在。创建终端。
-        MOVE_TERMINAL,                  // 门店和终端都存在。需要改变终端归属
+	public static class Advice {
+        public static final int NOOP = 0;                           // 门店和终端在映射表中存在，并且归属关系没有变化
+        public static final int CREATE_STORE_AND_MOVE_TERMINAL = 1; // 门店不存在但是终端存在。创建门店改变终端归属
+        public static final int CREATE_STORE_AND_TERMINAL = 2;      // 门店和终端都不存在。创建门店和终端
+        public static final int CREATE_TERMINAL = 3;                // 门店存在但是终端不存在。创建终端。
+        public static final int MOVE_TERMINAL = 4;                  // 门店和终端都存在。需要改变终端归属
+        
+        private int operation;
+        private String storeSn;
+        private String terminalSn;
+        
+        public Advice(int operation, String storeSn, String terminalSn) {
+            this.operation = operation;
+            this.storeSn = storeSn;
+            this.terminalSn = terminalSn;
+        }
+
+        public int getOperation() {
+            return operation;
+        }
+
+        public String getStoreSn() {
+            return storeSn;
+        }
+
+        public String getTerminalSn() {
+            return terminalSn;
+        }
+        
     }
 }

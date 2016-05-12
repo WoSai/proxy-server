@@ -29,6 +29,7 @@ public abstract class Order {
     public static final String ORDER_STATUS = "order_status";
     public static final String ORDER_STATUS_CREATED = "CREATED"; 
     public static final String ORDER_STATUS_PAID = "PAID"; 
+    public static final String ORDER_STATUS_IN_PROGRESS = "IN_PROGRESS";
     public static final String ORDER_STATUS_PAY_CANCELED = "PAY_CANCELED"; 
     
     //日志

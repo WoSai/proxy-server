@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wosai.upay.helper.UpayServiceAnnotation;
+import com.wosai.upay.proxy.auto.exception.ObjectMapException;
 import com.wosai.upay.proxy.auto.exception.ParameterValidationException;
 import com.wosai.upay.proxy.auto.exception.ProxyAutoException;
 import com.wosai.upay.proxy.auto.exception.ProxyCoreDependencyException;
@@ -27,7 +29,7 @@ import com.wosai.upay.proxy.core.exception.ProxyCoreException;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
-import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.exception.RemoteResponseError;
 import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.model.Order;
@@ -35,6 +37,7 @@ import com.wosai.upay.proxy.upay.model.TerminalKey;
 import com.wosai.upay.proxy.upay.service.ProxyUpayService;
 
 @Service
+@UpayServiceAnnotation
 public class ProxyAutoServiceImpl implements ProxyAutoService {
 	
     private static final Logger logger = LoggerFactory.getLogger(ProxyAutoServiceImpl.class); 
@@ -50,106 +53,105 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 
     @Override
     public Map<String, Object> pay(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderPay[] values=ClientOrderPay.values();
     	for(ClientOrderPay value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.pay(param);
-    	}catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+    	return proxyUpay.pay(param);
     }
+
     @Override
     public Map<String, Object> precreate(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderPrecreate[] values=ClientOrderPrecreate.values();
     	for(ClientOrderPrecreate value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.precreate(param);
-    	}catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+    	return proxyUpay.precreate(param);
+
     }
+
     @Override
     public Map<String, Object> query(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
+
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderQuery[] values=ClientOrderQuery.values();
     	for(ClientOrderQuery value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.query(param);
-    	}catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+
+    	return proxyUpay.query(param);
+
     }
     @Override
     public Map<String, Object> refund(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
+
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderRefund[] values=ClientOrderRefund.values();
     	for(ClientOrderRefund value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.refund(param);
-    	}catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+    	return proxyUpay.refund(param);
+
     }
+
     @Override
     public Map<String, Object> revoke(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
+
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderRevoke[] values=ClientOrderRevoke.values();
     	for(ClientOrderRevoke value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.revoke(param);
-    	}catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+
+    	return proxyUpay.revoke(param);
+
     }
+
     @Override
     public Map<String, Object> cancel(Map<String, Object> request)
-            throws ProxyAutoException {
-    	//检查本地映射
-    	this.checkObjectMap(request);
+            throws ProxyAutoException, ProxyCoreException, ProxyUpayException {
+
+        //检查本地映射
+    	this.ensureObjectMap(request);
+
     	//参数过滤，过滤多余的参数
     	Map<String,Object> param=new HashMap<String,Object>();
     	ClientOrderCancel[] values=ClientOrderCancel.values();
     	for(ClientOrderCancel value:values){
     		this.transferMap(request, param, value.getValue(), value.getMap());
     	}
-    	try {
-    	    return proxyUpay.cancel(param);
-    	} catch(ProxyUpayException ex) {
-    	    throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-    	}
+
+    	return proxyUpay.cancel(param);
+
     }
+
     @Override
     public Map<String, Object> createStore(Map<String, Object> request)
             throws ProxyAutoException {
@@ -185,6 +187,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
     }
+
     @Override
     public Map<String, Object> updateStore(Map<String, Object> request)
             throws ProxyAutoException {
@@ -222,6 +225,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }
         //本地库不做任何操作
     }
+
     @Override
     public Map<String, Object> getStore(Map<String, Object> request) throws ProxyAutoException {
         try {
@@ -233,7 +237,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(Exception e){
         	throw new ParameterValidationException("invalid clientSn");
         }
+
     }
+
     @Override
     public Map<String, Object> createTerminal(Map<String, Object> request)
             throws ProxyAutoException {
@@ -380,23 +386,17 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 
     }
     
+
     @Override
     public Map<String, Object> activateTerminal(Map<String, Object> request)
-            throws ProxyAutoException {
+            throws ProxyCoreException, ProxyUpayException {
 
-        try {
-            Map<String, Object> terminal = proxyCore.activateTerminal(request);
-            String terminalSn=terminal.get(TerminalKey.TERMINAL_SN).toString();
-            String terminalKey=terminal.get(TerminalKey.TERMINAL_KEY).toString();
-            proxyUpay.init(terminalSn, terminalKey);
-            return terminal;
+        Map<String, Object> terminal = proxyCore.activateTerminal(request);
+        String terminalSn = terminal.get(TerminalKey.TERMINAL_SN).toString();
+        String terminalKey = terminal.get(TerminalKey.TERMINAL_KEY).toString();
+        proxyUpay.init(terminalSn, terminalKey);
+        return terminal;
             
-        }catch(ProxyCoreException ex) {
-            throw new ProxyCoreDependencyException(ex.getMessage(), ex);
-        }catch(ProxyUpayException ex) {
-            throw new ProxyUpayDependencyException(ex.getMessage(), ex);
-        }
-
     }
 
 	@Override
@@ -446,10 +446,10 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     /**
      * 检查本地映射，并做相关数据同步
      * @param request
-     * @throws ResponseResolveException 
+     * @throws RemoteResponseError 
      */
     @SuppressWarnings("unchecked")
-    public void checkObjectMap(Map<String,Object> request) throws ProxyAutoException {
+    public void ensureObjectMap(Map<String,Object> request) throws ProxyAutoException, ProxyCoreException {
 	
 		//获取交易参数中的门店和终端信息
 		Map<String,Object> clientTerminal=(Map<String, Object>)request.get(ClientOrder.CLIENT_TERMINAL);
@@ -464,9 +464,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	//转成服务端接口所需参数
 		Map<String,Object> terminal = null;
 		//本地映射校验
-    	Advice advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
+    	int advice=theMap.consult(clientMerchantSn, clientStoreSn, clientTerminalSn);
     	switch (advice) {
-		case CREATE_TERMINAL:
+		case Advice.CREATE_TERMINAL:
 
 			try{
 				//创建终端
@@ -482,7 +482,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalSn=terminal.get(Terminal.SN).toString();
 			break;
 			
-		case MOVE_TERMINAL:
+		case Advice.MOVE_TERMINAL:
 
 			try{
 				//更新终端
@@ -498,7 +498,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalSn=theMap.getTerminalSn(clientTerminalSn);
 			break;
 			
-		case CREATE_STORE_AND_TERMINAL:
+		case Advice.CREATE_STORE_AND_TERMINAL:
 			try{
 				this.createStore(clientStore);
 			}catch(Exception e){
@@ -520,7 +520,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			terminalSn=terminal.get(Terminal.SN).toString();
 			break;
 			
-		case CREATE_STORE_AND_MOVE_TERMINAL:
+		case Advice.CREATE_STORE_AND_MOVE_TERMINAL:
 			try{
 				this.createStore(clientStore);
 			}catch(Exception e){
@@ -549,6 +549,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			logger.debug(" no updates.");
 			
 		}
+    	
+    	terminalSn = theMap.getTerminalSn(clientMerchantSn, clientStoreSn, clientTerminalSn);
+    	if (terminalSn == null) {
+    	    throw new ObjectMapException("数据库挂掉了？");
+    	}
     	request.put(ClientOrderPay.TERMINAL_SN.toString(), terminalSn);
     	
     	//把设备唯一标识保存到线程临时变量中，供日志组件使用

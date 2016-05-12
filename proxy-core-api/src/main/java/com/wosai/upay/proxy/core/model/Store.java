@@ -7,6 +7,7 @@ public abstract class Store {
     public static final String SN = "sn";
     public static final String CLIENT_SN = "client_sn";
     public static final String MERCHANT_ID = "merchant_id";
+    public static final String MERCHANT_SN = "merchant_sn";
     
     public static final String PROVINCE = "province";
     public static final String CITY = "city";

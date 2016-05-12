@@ -22,5 +22,6 @@ public abstract class ClientOrder {
     
     public static final String CLIENT_TERMINAL= "client_terminal";
     public static final String CLIENT_STORE= "client_store";
+    public static final String CLIENT_MERCHANT = "client_merchant";
 
 }

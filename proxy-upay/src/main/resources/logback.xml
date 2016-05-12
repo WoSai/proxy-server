@@ -37,6 +37,19 @@
         </encoder>
     </appender>
 
+    <appender name="schedulingLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logdir:-.}/proxy-upay-schedule-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{0} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
 
     <root level="debug">
         <appender-ref ref="console"/>
@@ -47,6 +60,10 @@
 
     <logger name="com.wosai.upay.proxy" level="trace" additivity="true">
     	<appender-ref ref="fileAppender"/>
+    </logger>
+
+    <logger name="com.wosai.upay.proxy.upay.service.TerminalKeyCacheMonitor" level="info" additivity="true">
+    	<appender-ref ref="schedulingLogAppender"/>
     </logger>
 
 </configuration>

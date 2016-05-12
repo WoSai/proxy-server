@@ -2,41 +2,43 @@ package com.wosai.upay.proxy.util;
 
 import java.util.Map;
 
-import com.wosai.upay.proxy.exception.BizResponseResolveException;
-import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.proxy.exception.RemoteResponse400;
+import com.wosai.upay.proxy.exception.RemoteResponse500;
+import com.wosai.upay.proxy.exception.RemoteResponseBizError;
 import com.wosai.upay.proxy.model.Response;
 
 public class ResponseUtil {
     @SuppressWarnings("unchecked")
-    public static Map<String,Object> resolve1(Map<String,Object> result) throws ResponseResolveException {
-        if (result == null) {
-            throw new ResponseResolveException("NULL_RESPONSE", "null response");
-        }
-        if (Response.RESULT_CODE_SUCEESS.equals(result.get(Response.RESULT_CODE))) {
-            return (Map<String,Object>)result.get(Response.BIZ_RESPONSE);
-
+    public static Map<String,Object> resolve1(Map<String,Object> result) throws RemoteResponse400, RemoteResponse500 {
+        if (Response.RESULT_CODE_CLIENT_ERROR.equals(result.get(Response.RESULT_CODE))) {
+            throw new RemoteResponse400(String.valueOf(result.get(Response.ERROR_CODE)),
+                                        (String.valueOf(result.get(Response.ERROR_MESSAGE))));
+        } else if (Response.RESULT_CODE_SYSTEM_ERROR.equals(result.get(Response.RESULT_CODE))){
+            throw new RemoteResponse500(String.valueOf(result.get(Response.ERROR_CODE)),
+            		String.valueOf(result.get(Response.ERROR_MESSAGE)));
         } else {
-            throw new ResponseResolveException(String.valueOf(result.get(Response.ERROR_CODE)),
-            			String.valueOf(result.get(Response.ERROR_MESSAGE)));
+            return (Map<String,Object>)result.get(Response.BIZ_RESPONSE);
         }
         
     }
     
     @SuppressWarnings("unchecked")
-	public static Map<String,Object> resolve2(Map<String,Object> result) throws ResponseResolveException, BizResponseResolveException {
+	public static Map<String,Object> resolve2(Map<String,Object> result) throws RemoteResponse400, RemoteResponse500, RemoteResponseBizError {
         Map<String, Object> bizResponse = (Map<String, Object>)resolve1(result);
+
         if (bizResponse == null) {
-            throw new BizResponseResolveException("NULL_BIZ_RESPONSE", "null biz response");
+            return null;
         }
         String bizResultCode = (String)bizResponse.get(Response.RESULT_CODE);
         if (bizResultCode == null) {
-            throw new ResponseResolveException("NULL_BIZ_RESULT_CODE", "null biz result code");
+            return null;
         }
+
         if (!bizResultCode.contains("FAIL")) {
             return (Map<String,Object>)bizResponse.get(Response.DATA);
         }else{
-            throw new ResponseResolveException(String.valueOf(bizResponse.get(Response.ERROR_CODE)),
-            		String.valueOf(bizResponse.get(Response.ERROR_MESSAGE)));
+            throw new RemoteResponseBizError((String)bizResponse.get(Response.ERROR_CODE),
+                                             (String)bizResponse.get(Response.ERROR_MESSAGE));
         }
         
     }

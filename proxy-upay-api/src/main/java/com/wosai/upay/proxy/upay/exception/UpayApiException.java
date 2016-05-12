@@ -1,6 +1,6 @@
 package com.wosai.upay.proxy.upay.exception;
 
-public class UpayApiException extends ProxyUpaySystemException {
+public abstract class UpayApiException extends ProxyUpaySystemException {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,9 +14,5 @@ public class UpayApiException extends ProxyUpaySystemException {
         this(null, cause);
     }
 
-    @Override
-    public String getCode() {
-        return "UPAY_API_EXCEPTION";
-    }
 
 }

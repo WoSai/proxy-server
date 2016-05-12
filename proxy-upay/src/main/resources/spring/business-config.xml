@@ -13,6 +13,7 @@ Data and Service layers
   <context:property-placeholder location="classpath:spring/flavor-${upay.flavor:default}.properties"/>
 
   <!-- 辅助类型 -->
+  <bean class="com.wosai.upay.proxy.upay.helper.UpayServicePostProcessor"></bean>
   <bean class="com.wosai.upay.helper.UpayMethodValidationPostProcessor"></bean>
   <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
   <bean class="com.googlecode.jsonrpc4j.spring.AutoJsonRpcServiceExporter">

@@ -4,7 +4,18 @@
     <diskStore path="java.io.tmpdir"/>
 
     <!-- objects are evicted from the cache every 60 seconds -->
-    <cache name="store"
+    <cache name="terminals"
+           timeToLiveSeconds="60"
+           maxElementsInMemory="3000"
+           eternal="false"
+           overflowToDisk="false"
+           maxElementsOnDisk="10000000"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="1"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <!-- objects are evicted from the cache every 60 seconds -->
+    <cache name="merchants"
            timeToLiveSeconds="60"
            maxElementsInMemory="100"
            eternal="false"

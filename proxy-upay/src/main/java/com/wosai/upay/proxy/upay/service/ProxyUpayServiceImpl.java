@@ -2,7 +2,6 @@ package com.wosai.upay.proxy.upay.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wosai.upay.proxy.exception.BizResponseResolveException;
-import com.wosai.upay.proxy.exception.ResponseResolveException;
+import com.wosai.upay.helper.UpayServiceAnnotation;
+import com.wosai.upay.proxy.exception.RemoteResponse400;
+import com.wosai.upay.proxy.exception.RemoteResponse500;
 import com.wosai.upay.proxy.model.Response;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
-import com.wosai.upay.proxy.upay.exception.ProxyUpayKeyStoreException;
-import com.wosai.upay.proxy.upay.exception.UpayApiException;
+import com.wosai.upay.proxy.upay.exception.UpayApi400;
+import com.wosai.upay.proxy.upay.exception.UpayApi500;
+import com.wosai.upay.proxy.upay.exception.UpayApiIOException;
 import com.wosai.upay.proxy.upay.model.Order;
-import com.wosai.upay.proxy.upay.model.TerminalKey;
-import com.wosai.upay.proxy.util.ResponseUtil;
 
 /**
  * 代理终端逻辑
@@ -32,6 +31,7 @@ import com.wosai.upay.proxy.util.ResponseUtil;
  *
  */
 @Service
+@UpayServiceAnnotation
 public class ProxyUpayServiceImpl implements ProxyUpayService {
     private static final Logger logger = LoggerFactory.getLogger(ProxyUpayServiceImpl.class); 
 
@@ -39,7 +39,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     private UpayApiFacade upayApi;
     
     @Autowired
-    private TerminalKeyStore keyStore;
+    private CachedTerminalKeyStore keyStore;
     
     private static final Map<String,String> secretMap=new HashMap<String,String>();
     private static final Map<String,String> dateMap=new HashMap<String,String>();
@@ -53,11 +53,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
         // 初始化终端密钥
         // 以后自动签到会更新密钥
-        try {
-            keyStore.setKey(terminalSn, secret);
-        }catch(Exception ex) {
-            throw new ProxyUpayKeyStoreException(ex.getMessage(), ex);
-        }
+        keyStore.setKey(terminalSn, secret);
         
     }
 
@@ -69,78 +65,93 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
-			Map<String, Object> response = upayApi.pay(terminalSn,
-			                                         terminalKey,
-			                                         request);
-			
-			return response;
+			Map<String, Object> bizResponse = upayApi.pay(terminalSn,
+			                                              terminalKey,
+			                                              request);
+
+			return bizResponse;
 			
 		}  catch (IOException e) {
 			//如果请求或获取处理结果超时
 			logger.debug("call pay api timeout",e);
 			try {
 				//查询订单状态
-				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve2(response);
-				String status=(String) bizData.get(Order.ORDER_STATUS);
+				Map<String, Object> bizResponse = upayApi.query(terminalSn, terminalKey, request);
+				Map<String, Object> data = (Map<String, Object>) bizResponse.get(Response.DATA);
+				
+				String status = (String) data.get(Order.ORDER_STATUS);
 				//判断是否已经交易成功
-				if(status!=null&&
-						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
-						){
+				if(status != null && !status.contains(Order.ORDER_STATUS_IN_PROGRESS)) {
 					//返回最新订单信息
-					return response;
+					return bizResponse;
 				}
-			} catch (IOException e1) {
-				logger.debug("possible network outage",e1);
-			} catch (ResponseResolveException e1) {
-				logger.debug("maybe the server is temporarily unavailable",e1);
-			} catch (BizResponseResolveException ex) {
-                logger.debug("if the order doesn't exist you'll end up here.", ex);
+
+			} catch (IOException ex) {
+				logger.warn("possible network outage", ex);
+
+			} catch (RemoteResponse400 ex) {
+				logger.error("QUERY api specifications might have changed. contact software developer.", ex);
+				throw new UpayApi400(String.format("upay-gatway QUERY 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+			} catch (RemoteResponse500 ex) {
+                logger.warn("upay-gateway is temporarily unavailable.", ex);
 			}
+
 			try {
 				//等待一段时间继续查询
 				Thread.sleep(upayApi.getFailedWaitTime());
 			} catch (InterruptedException e1) {
 			}
 
-			try {
-				//再次查询订单状态
-				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve2(response);
-				String status=(String) bizData.get(Order.ORDER_STATUS);
-				
-				//判断是否已经交易成功
-				if(status!=null){
-					if(status.equals(Order.ORDER_STATUS_PAID)
-							||status.equals(Order.ORDER_STATUS_PAY_CANCELED)){
-						//返回最新订单信息
-						return response;
-					}
-				}
-			} catch (IOException e1) {
-                logger.debug("possible network outage",e1);
-            } catch (ResponseResolveException e1) {
-                logger.debug("maybe the server is temporarily unavailable",e1);
-            } catch (BizResponseResolveException ex) {
-                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            try {
+                //查询订单状态
+                Map<String, Object> bizResponse = upayApi.query(terminalSn, terminalKey, request);
+                Map<String, Object> data = (Map<String, Object>) bizResponse.get(Response.DATA);
+                
+                String status = (String) data.get(Order.ORDER_STATUS);
+                //判断是否已经交易成功
+                if(status != null && !status.contains(Order.ORDER_STATUS_IN_PROGRESS)) {
+                    //返回最新订单信息
+                    return bizResponse;
+                }
+
+            } catch (IOException ex) {
+                logger.warn("possible network outage", ex);
+
+            } catch (RemoteResponse400 ex) {
+                logger.error("QUERY api specifications might have changed. contact software developer.", ex);
+                throw new UpayApi400(String.format("upay-gatway QUERY 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+            } catch (RemoteResponse500 ex) {
+                logger.warn("upay-gateway is temporarily unavailable.", ex);
             }
 			
-			try {
-			    Map<String, Object> response = upayApi.cancel(terminalSn, terminalKey, request); 
-			    Map<String, Object> bizData=ResponseUtil.resolve2(response);
-			    return response;
+            try {
+                // 时间到，无法确认订单成功，冲正
+                return upayApi.cancel(terminalSn, terminalKey, request);
 
-			} catch (IOException e1) {
-                logger.debug("possible network outage",e1);
-            } catch (ResponseResolveException e1) {
-                logger.debug("maybe the server is temporarily unavailable",e1);
-            } catch (BizResponseResolveException ex) {
-                logger.debug("if the order doesn't exist you'll end up here.", ex);
+            } catch (IOException ex) {
+                logger.error("PAY/CANCEL failure on i/o", ex);
+                throw new UpayApiIOException("pay/cancel failure on i/o", ex);
+
+            } catch (RemoteResponse400 ex) {
+                logger.error("CANCEL api specifications might have changed. contact software developer.", ex);
+                throw new UpayApi400(String.format("upay-gatway CANCEL 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+            } catch (RemoteResponse500 ex) {
+                logger.error("upay-gateway is temporarily unavailable.", ex);
+                throw new UpayApi500(String.format("upay-gateway CANCEL 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
             }
-		}
 
-        //所有执行都失败，电话联系客服
-        throw new UpayApiException(" call pay api failed , please contact customer service ");
+		} catch (RemoteResponse400 ex) {
+		    logger.error("PAY api specification might have changed. contact software developer.", ex);
+		    throw new UpayApi400(String.format("upay-gatway PAY 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+		} catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gateway PAY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
+        }
+
     }
 
     @Override
@@ -150,37 +161,43 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         // C扫B入口
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
-		try {
-			Map<String, Object> response = upayApi.precreate(terminalSn,
-			                                         terminalKey,
-			                                         request);
-			return response;
+
+        try {
+            Map<String, Object> bizResponse = upayApi.precreate(terminalSn,
+                                                                terminalKey,
+                                                                request);
+            return bizResponse;
+
 		} catch (IOException e) {
 			//如果请求或获取处理结果超时
 			logger.debug("call precreate api timeout",e);
-			try {
-				//查询订单状态
-				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData = ResponseUtil.resolve2(response);
-				String status=(String) bizData.get(Order.ORDER_STATUS);
-				//判断是否已经交易成功
-				if(status!=null&&
-						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
-						){
-					//返回最新订单信息
-					return response;
-				}
-			} catch (IOException e1) {
-                logger.debug("possible network outage",e1);
-            } catch (ResponseResolveException e1) {
-                logger.debug("maybe the server is temporarily unavailable",e1);
-            } catch (BizResponseResolveException ex) {
-                logger.debug("if the order doesn't exist you'll end up here.", ex);
+
+            try {
+                //查询订单状态
+                return upayApi.query(terminalSn, terminalKey, request);
+
+            } catch (IOException ex) {
+                logger.error("PRECREATE/QUERY failure on i/o", ex);
+                throw new UpayApiIOException("PRECREATE/QUERY failure on i/o", ex);
+
+            } catch (RemoteResponse400 ex) {
+                logger.error("QUERY api specifications might have changed. contact software developer.", ex);
+                throw new UpayApi400(String.format("upay-gatway QUERY 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+            } catch (RemoteResponse500 ex) {
+                logger.error("upay-gateway is temporarily unavailable.", ex);
+                throw new UpayApi500(String.format("upay-gatway QUERY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
             }
+		} catch (RemoteResponse400 ex) {
+            logger.error("PRECREATE api specifications might have changed. contact software developer.", ex);
+            throw new UpayApi400(String.format("upay-gatway PRECREATE 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+ 
+		} catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gatway PRECREATE 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
 		}
 		
-        //所有执行都失败，电话联系客服
-        throw new UpayApiException(" call precreate api failed , please contact customer service ");
     }
 
     @Override
@@ -190,37 +207,26 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         // 退款
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
-		try {
-			Map<String, Object> response = upayApi.refund(terminalSn,
-			                                         terminalKey,
-			                                         request);
-			return response;
-		} catch (IOException e) {
-			//如果请求或获取处理结果超时
-			logger.debug("call refund api timeout",e);
-			try {
-				//查询订单状态
-				Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-				Map<String, Object> bizData=ResponseUtil.resolve2(response);
-				String status=(String) bizData.get(Order.ORDER_STATUS);
-				//判断是否已经交易成功
-				if(status!=null&&
-						(status.equals(Order.ORDER_STATUS_PAID)||status.equals(Order.ORDER_STATUS_PAY_CANCELED))
-						){
-					//返回最新订单信息
-					return response;
-				}
-			} catch (IOException e1) {
-                logger.debug("possible network outage",e1);
-            } catch (ResponseResolveException e1) {
-                logger.debug("maybe the server is temporarily unavailable",e1);
-            } catch (BizResponseResolveException ex) {
-                logger.debug("if the order doesn't exist you'll end up here.", ex);
-            }
-		}
-		
-        //所有执行都失败，电话联系客服
-        throw new UpayApiException(" call refund api failed , please contact customer service ");
+
+        try {
+            Map<String, Object> bizResponse = upayApi.refund(terminalSn,
+                                                             terminalKey,
+                                                             request);
+            return bizResponse;
+
+        } catch (IOException ex) {
+            logger.error("REFUND failure on i/o", ex);
+            throw new UpayApiIOException("REFUND failure on i/o", ex);
+
+        } catch (RemoteResponse400 ex) {
+            logger.error("REFUND api specifications might have changed. contact software developer.", ex);
+            throw new UpayApi400(String.format("upay-gatway REFUND 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+ 
+        } catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gatway REFUND 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+        }
     }
 
     @Override
@@ -231,11 +237,20 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
-            Map<String, Object> response = upayApi.query(terminalSn, terminalKey, request);
-            return response;
-        } catch (IOException e1) {
-            logger.debug("possible network outage",e1);
-            throw new UpayApiException("failed to query");
+            Map<String, Object> bizResponse = upayApi.query(terminalSn, terminalKey, request);
+            return bizResponse;
+
+        } catch (IOException ex) {
+            logger.error("QUERY failure on i/o", ex);
+            throw new UpayApiIOException("QUERY failure on i/o", ex);
+
+        } catch (RemoteResponse400 ex) {
+            logger.error("QUERY api specifications might have changed. contact software developer.", ex);
+            throw new UpayApi400(String.format("upay-gatway QUERY 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
+        } catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gatway QUERY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
         }
     }
 
@@ -244,16 +259,27 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             throws ProxyUpayException {
 
         // 手动撤单
+
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
-            Map<String, Object> response = upayApi.revoke(terminalSn,
-    		                                         terminalKey,
-    		                                         request);
-            return response;
-        } catch (IOException e1) {
-            logger.debug("possible network outage",e1);
-            throw new UpayApiException("failed to revoke.");
+            Map<String, Object> bizResponse = upayApi.revoke(terminalSn,
+                                                             terminalKey,
+                                                             request);
+            return bizResponse;
+
+        } catch (IOException ex) {
+            logger.error("REVOKE failure on i/o", ex);
+            throw new UpayApiIOException("REVOKE failure on i/o", ex);
+
+        } catch (RemoteResponse400 ex) {
+            logger.error("REVOKE api specifications might have changed. contact software developer.", ex);
+            throw new UpayApi400(String.format("upay-gatway REVOKE 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+ 
+        } catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gatway REVOKE 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
         }
     }
 
@@ -262,16 +288,27 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             throws ProxyUpayException {
 
         // 冲正
+
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
-            Map<String, Object> response = upayApi.cancel(terminalSn,
-    		                                         terminalKey,
-    		                                         request);
-            return response;
-        } catch (IOException e1) {
-            logger.debug("possible network outage",e1);
-            throw new UpayApiException("failed to cancel");
+            Map<String, Object> bizResponse = upayApi.cancel(terminalSn,
+                                                             terminalKey,
+                                                             request);
+            return bizResponse;
+
+        } catch (IOException ex) {
+            logger.error("CANCEL failure on i/o", ex);
+            throw new UpayApiIOException("CANCEL failure on i/o", ex);
+
+        } catch (RemoteResponse400 ex) {
+            logger.error("CANCEL api specifications might have changed. contact software developer.", ex);
+            throw new UpayApi400(String.format("upay-gatway CANCEL 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
+ 
+        } catch (RemoteResponse500 ex) {
+            logger.error("upay-gateway is temporarily unavailable.", ex);
+            throw new UpayApi500(String.format("upay-gatway CANCEL 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
+
         }
     }
 
@@ -292,7 +329,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             return response;
         } catch (IOException e1) {
             logger.debug("possible network outage",e1);
-            throw new UpayApiException("failed to uploadLog");
+            throw new UpayApiIOException("failed to uploadLog");
         }
     }
     
@@ -303,39 +340,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	 * @return
 	 * @throws IOException 
 	 */
-	private synchronized String getKey(String terminalSn,Map<String,Object> request) {
-		String today=sdf.format(Calendar.getInstance().getTime());
-		String date=dateMap.get(terminalSn);
-		logger.debug("getKey date: " + date);
-		//判断今天是否签到过了
-		if(date==null||!date.equals(today)){
-			logger.info("getKey and the key need to update");
-		    String deviceId=request.get(TerminalKey.DEVICE_ID).toString();
-		    String terminalKey=keyStore.getKey(terminalSn);
-		    String secret = terminalKey;
-		    try {
-		    	logger.debug(terminalSn+" is signing ");
-    		    Map<String,Object> response = upayApi.checkin(terminalSn, terminalKey, deviceId);
-		    	logger.debug(terminalSn+"_"+terminalKey+"_"+deviceId+" signing result: "+response);
-    		    Map<String,Object> responseBiz = (Map<String,Object>) response.get(Response.BIZ_RESPONSE);
-    		    if(responseBiz==null){
-                    logger.debug("responseBiz is null");
-                    throw new ProxyUpayKeyStoreException(" checkin faild.");
-    		    }
-    		    secret = responseBiz.get(TerminalKey.TERMINAL_KEY).toString();
-		    	logger.debug(terminalSn+"' sign is "+secret);
-		    } catch (IOException e1) {
-                logger.debug("possible network outage",e1);
-            }
-		    // 更新密钥
-		    dateMap.put(terminalSn, today);
-		    secretMap.put(terminalSn, secret);
-		    keyStore.setKey(terminalSn, secret);
-		    return secret;
-		}
-		logger.debug("getKey from the cache.");
-        return secretMap.get(terminalSn);
-		
+	private String getKey(String terminalSn,Map<String,Object> request) {
+	    
+	    return keyStore.getKey(terminalSn);
 
 	}
 }
