@@ -235,7 +235,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
-        	throw new ParameterValidationException("invalid clientSn");
+        	throw new ParameterValidationException("invalid client_sn");
         }
 
     }
@@ -250,7 +250,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			String storeSn=theMap.getStoreSn(clientStoreSn);
 			request.put(Terminal.STORE_SN, storeSn);
     	}catch(Exception e){
-			throw new ParameterValidationException("invalid clientStoreSn");
+			throw new ParameterValidationException("invalid client_store_sn");
     	}
     	
     	
@@ -299,7 +299,10 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	clientTerminalSn=(String)request.get(ClientOrderTerminal.CLIENT_SN.toString());
     		terminalId = theMap.getTerminalId(clientTerminalSn);
     		request.put(Terminal.ID, terminalId);
-    		
+    	}catch(Exception e){
+			throw new ParameterValidationException("invalid client_sn");
+		}
+    	try{
     		//根据clientStoreSn获取storeId
     		clientStoreSn=(String)request.get(ClientOrderTerminal.CLIENT_STORE_SN.toString());
 	    	if(clientStoreSn!=null){
@@ -310,7 +313,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 	    	}
 	
 		}catch(Exception e){
-			throw new ParameterValidationException("invalid clientStoreSn");
+			throw new ParameterValidationException("invalid client_store_sn");
 		}
 		
         try {
@@ -361,7 +364,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 	    	}
 	
 		}catch(Exception e){
-			throw new ParameterValidationException("invalid clientStoreSn");
+			throw new ParameterValidationException("invalid client_store_sn");
 		}
 		
         try {
@@ -438,7 +441,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         }catch(ProxyCoreException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
-        	throw new ParameterValidationException("invalid clientSn");
+        	throw new ParameterValidationException("invalid client_sn");
         }
 
     }

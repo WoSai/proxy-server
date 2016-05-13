@@ -82,7 +82,6 @@ public class VendorApiFacade {
     public Map<String,Object> createTerminal(@PropNotEmpty.List({
         @PropNotEmpty(Terminal.CLIENT_SN),
         @PropNotEmpty(Terminal.NAME),
-        @PropNotEmpty(Terminal.TYPE),
         @PropNotEmpty(Terminal.STORE_SN)
       })
                               Map<String, Object> request) throws VendorApiException {
