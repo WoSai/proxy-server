@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.validator.internal.engine.MethodConstraintViolationImpl;
+import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import com.wosai.upay.helper.UpayServiceAnnotation;
 import com.wosai.upay.proxy.exception.RemoteResponse400;
 import com.wosai.upay.proxy.exception.RemoteResponse500;
 import com.wosai.upay.proxy.model.Response;
+import com.wosai.upay.proxy.upay.exception.ParameterValidationException;
 import com.wosai.upay.proxy.upay.exception.ProxyUpayException;
 import com.wosai.upay.proxy.upay.exception.UpayApi400;
 import com.wosai.upay.proxy.upay.exception.UpayApi500;
@@ -95,12 +98,16 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
 			} catch (RemoteResponse500 ex) {
                 logger.warn("upay-gateway is temporarily unavailable.", ex);
+			}catch(MethodConstraintViolationException mcve){
+				throw parseParameterValidationException(mcve);
 			}
 
 			try {
 				//等待一段时间继续查询
 				Thread.sleep(upayApi.getFailedWaitTime());
 			} catch (InterruptedException e1) {
+			}catch(MethodConstraintViolationException mcve){
+				throw parseParameterValidationException(mcve);
 			}
 
             try {
@@ -124,7 +131,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 
             } catch (RemoteResponse500 ex) {
                 logger.warn("upay-gateway is temporarily unavailable.", ex);
-            }
+            }catch(MethodConstraintViolationException mcve){
+    			throw parseParameterValidationException(mcve);
+    		}
 			
             try {
                 // 时间到，无法确认订单成功，冲正
@@ -141,7 +150,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             } catch (RemoteResponse500 ex) {
                 logger.error("upay-gateway is temporarily unavailable.", ex);
                 throw new UpayApi500(String.format("upay-gateway CANCEL 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
-            }
+            }catch(MethodConstraintViolationException mcve){
+    			throw parseParameterValidationException(mcve);
+    		}
 
 		} catch (RemoteResponse400 ex) {
 		    logger.error("PAY api specification might have changed. contact software developer.", ex);
@@ -150,7 +161,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		} catch (RemoteResponse500 ex) {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gateway PAY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
-        }
+        }catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
 
     }
 
@@ -187,7 +200,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             } catch (RemoteResponse500 ex) {
                 logger.error("upay-gateway is temporarily unavailable.", ex);
                 throw new UpayApi500(String.format("upay-gatway QUERY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
-            }
+            }catch(MethodConstraintViolationException mcve){
+    			throw parseParameterValidationException(mcve);
+    		}
 		} catch (RemoteResponse400 ex) {
             logger.error("PRECREATE api specifications might have changed. contact software developer.", ex);
             throw new UpayApi400(String.format("upay-gatway PRECREATE 400 %s : %s", ex.getCode(), ex.getMessage()), ex);
@@ -196,6 +211,8 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gatway PRECREATE 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
 
+		}catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
 		}
 		
     }
@@ -226,7 +243,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gatway REFUND 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
 
-        }
+        } catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
     }
 
     @Override
@@ -251,7 +270,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         } catch (RemoteResponse500 ex) {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gatway QUERY 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
-        }
+        } catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
     }
 
     @Override
@@ -280,7 +301,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gatway REVOKE 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
 
-        }
+        } catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
     }
 
     @Override
@@ -309,7 +332,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             logger.error("upay-gateway is temporarily unavailable.", ex);
             throw new UpayApi500(String.format("upay-gatway CANCEL 500 %s : %s", ex.getCode(), ex.getMessage()), ex);
 
-        }
+        } catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
     }
 
 
@@ -330,7 +355,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         } catch (IOException e1) {
             logger.debug("possible network outage",e1);
             throw new UpayApiIOException("failed to uploadLog");
-        }
+        } catch(MethodConstraintViolationException mcve){
+			throw parseParameterValidationException(mcve);
+		}
     }
     
 
@@ -344,5 +371,14 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	    
 	    return keyStore.getKey(terminalSn);
 
+	}
+	
+	/**
+	 * 转换验证异常
+	 * @param mcve
+	 * @return
+	 */
+	public ParameterValidationException parseParameterValidationException(MethodConstraintViolationException mcve){
+		return new ParameterValidationException(((MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next()).getMessage());
 	}
 }

@@ -26,6 +26,7 @@ import com.wosai.upay.proxy.auto.model.ClientOrderStore;
 import com.wosai.upay.proxy.auto.model.ClientOrderTerminal;
 import com.wosai.upay.proxy.auto.service.ProxyObjectMap.Advice;
 import com.wosai.upay.proxy.core.exception.ProxyCoreException;
+import com.wosai.upay.proxy.core.exception.ProxyCoreSystemException;
 import com.wosai.upay.proxy.core.model.Store;
 import com.wosai.upay.proxy.core.model.Terminal;
 import com.wosai.upay.proxy.core.service.ProxyCoreService;
@@ -183,7 +184,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	}
         	
             return result;
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
     }
@@ -220,7 +221,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         		this.transferMap(request, param, value.getValue(), value.getMap());
         	}
             return proxyCore.updateStore(param);
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
         //本地库不做任何操作
@@ -232,7 +233,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	String clientStoreSn = request.get(Store.CLIENT_SN).toString();
         	String storeId = theMap.getStoreId(clientStoreSn);
             return proxyCore.getStore(storeId);
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
         	throw new ParameterValidationException("invalid client_sn");
@@ -281,7 +282,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 				throw new ProxyUpayDependencyException("init secret faild.");
 			}
             return result;
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
     }
@@ -332,7 +333,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	theMap.updateTerminal(clientMerchantSn, clientStoreSn, clientTerminalSn);
         	
         	return result;
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
 
@@ -383,7 +384,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	theMap.updateTerminal(clientMerchantSn, clientStoreSn, clientTerminalSn);
         	
         	return result;
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }
 
@@ -438,7 +439,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	String clientTerminalSn = request.get(Terminal.CLIENT_SN).toString();
         	String terminalId = theMap.getTerminalId(clientTerminalSn);
             return proxyCore.getTerminal(terminalId);
-        }catch(ProxyCoreException ex) {
+        }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
         	throw new ParameterValidationException("invalid client_sn");

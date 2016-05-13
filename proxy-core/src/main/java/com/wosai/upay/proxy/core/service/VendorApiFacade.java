@@ -51,15 +51,15 @@ public class VendorApiFacade {
     
 
     public Map<String,Object> createStore(@PropNotEmpty.List({
-						        @PropNotEmpty(Store.CLIENT_SN),
-						        @PropNotEmpty(Store.NAME),
-						        @PropNotEmpty(Store.MERCHANT_ID),
-						        @PropNotEmpty(Store.PROVINCE),
-						        @PropNotEmpty(Store.CITY),
-						        @PropNotEmpty(Store.DISTRICT),
-						        @PropNotEmpty(Store.STREET_ADDRESS),
-						        @PropNotEmpty(Store.CONTACT_NAME),
-						        @PropNotEmpty(Store.CONTACT_CELLPHONE)
+						        @PropNotEmpty(value=Store.CLIENT_SN,message="对接方门店号不能为空"),
+						        @PropNotEmpty(value=Store.NAME,message="门店名称不能为空"),
+						        @PropNotEmpty(value=Store.MERCHANT_ID,message="商户标识不能为空"),
+						        @PropNotEmpty(value=Store.PROVINCE,message="省份不能为空"),
+						        @PropNotEmpty(value=Store.CITY,message="城市不能为空"),
+						        @PropNotEmpty(value=Store.DISTRICT,message="区域不能为空"),
+						        @PropNotEmpty(value=Store.STREET_ADDRESS,message="街道不能为空"),
+						        @PropNotEmpty(value=Store.CONTACT_NAME,message="联系人姓名不能为空"),
+						        @PropNotEmpty(value=Store.CONTACT_CELLPHONE,message="联系移动电话号码不能为空")
 						      })
                               Map<String, Object> request) throws VendorApiException {
         
@@ -67,7 +67,9 @@ public class VendorApiFacade {
     }
 
 
-	public Map<String, Object> updateStore(Map<String, Object> request) {
+	public Map<String, Object> updateStore(@PropNotEmpty.List({
+        						@PropNotEmpty(value=Store.CLIENT_SN,message="对接方门店号不能为空")
+      							})Map<String, Object> request) {
         return call2(updateStoreApiUrl, request);
 	}
 
@@ -80,17 +82,20 @@ public class VendorApiFacade {
     
 
     public Map<String,Object> createTerminal(@PropNotEmpty.List({
-        @PropNotEmpty(Terminal.CLIENT_SN),
-        @PropNotEmpty(Terminal.NAME),
-        @PropNotEmpty(Terminal.STORE_SN)
-      })
-                              Map<String, Object> request) throws VendorApiException {
+										        @PropNotEmpty(value=Terminal.CLIENT_SN, message="对接方终端号不能为空"),
+										        @PropNotEmpty(value=Terminal.NAME, message="终端名称不能为空"),
+										        @PropNotEmpty(value=Terminal.STORE_SN, message="门店标识不能为空")
+										      })
+                              				Map<String, Object> request) throws VendorApiException {
     	request.put(Terminal.VENDOR_APP_ID, vendorAppId);
         return call2(createTerminalApiUrl, request);
     }
 
 
-	public Map<String, Object> updateTerminal(Map<String, Object> request) {
+	public Map<String, Object> updateTerminal(@PropNotEmpty.List({
+										        @PropNotEmpty(value=Terminal.CLIENT_SN, message="对接方终端号不能为空")
+										      })
+											Map<String, Object> request) {
 		return call2(updateTerminalApiUrl, request);
 	}
 
@@ -109,7 +114,7 @@ public class VendorApiFacade {
 
 	
 	public Map<String,Object> activateTerminal(@PropNotEmpty.List({
-        @PropNotEmpty(Terminal.CODE)
+        @PropNotEmpty(value=Terminal.CODE)
       })
                               Map<String, Object> request) throws VendorApiException {
 	    
