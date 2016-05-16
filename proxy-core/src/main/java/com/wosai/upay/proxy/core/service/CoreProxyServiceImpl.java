@@ -121,8 +121,8 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
 	 */
 	public ParameterValidationException parseParameterValidationException(MethodConstraintViolationException mcve){
 		MethodConstraintViolationImpl mcvi=(MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next();
-		Map<Object,Object> invalidValue=(Map<Object,Object>)mcvi.getInvalidValue();
-		String key = String.valueOf(invalidValue.keySet().iterator().next());
+		Map<Object,Object> invalidValue=(Map<Object,Object>)mcvi.getConstraintDescriptor().getAttributes();
+		String key = String.valueOf(invalidValue.get("value"));
 		return new ParameterValidationException(new StringBuilder("invalid ").append(key).append(".").toString());
 	}
 
