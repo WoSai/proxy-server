@@ -233,7 +233,10 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         try {
         	String clientStoreSn = request.get(Store.CLIENT_SN).toString();
         	String storeId = theMap.getStoreId(clientStoreSn);
-            return proxyCore.getStore(storeId);
+        	String clientMerchantSn = theMap.getClientMerchantSn(clientStoreSn);
+        	Map<String,Object> result=proxyCore.getStore(storeId);
+        	result.put(ClientOrderStore.CLIENT_MERCHANT_SN.getValue(), clientMerchantSn);
+            return result;
         }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){
@@ -440,7 +443,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
         	
         	String clientTerminalSn = request.get(Terminal.CLIENT_SN).toString();
         	String terminalId = theMap.getTerminalId(clientTerminalSn);
-            return proxyCore.getTerminal(terminalId);
+        	String clientStoreSn = theMap.getClientStoreSn(clientTerminalSn);
+
+        	Map<String,Object> result=proxyCore.getTerminal(terminalId);
+        	result.put(ClientOrderTerminal.CLIENT_STORE_SN.getValue(), clientStoreSn);
+            return result;
         }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
         }catch(Exception e){

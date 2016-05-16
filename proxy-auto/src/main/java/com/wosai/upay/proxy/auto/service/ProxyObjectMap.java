@@ -184,9 +184,8 @@ public class ProxyObjectMap {
     }
     
     /**
-     * 根据store的client_sn从映射表中查询store的id
-     * @param clientMerchantSn
-     * @param clientTerminalSn
+     * 根据store的client_sn从映射表中查询store的sn
+     * @param clientStoreSn
      * @return
      */
     public String getStoreSn(String clientStoreSn) {
@@ -196,8 +195,7 @@ public class ProxyObjectMap {
     
     /**
      * 根据store的client_sn从映射表中查询store的id
-     * @param clientMerchantSn
-     * @param clientTerminalSn
+     * @param clientStoreSn
      * @return
      */
     public String getStoreId(String clientStoreSn) {
@@ -217,6 +215,16 @@ public class ProxyObjectMap {
     	Criteria storeCriteria=Criteria.where(ClientStore.CLIENT_STORE_SN).is(clientStoreSn);
     	Map<String,Object> store=storeMapDao.filter(storeCriteria).fetchOne();
         return store;
+    }
+
+    
+    /**
+     * 从映射表中查询client_store_sn
+     * @param clientTerminalSn
+     * @return
+     */
+    public String getClientStoreSn(String clientTerminalSn) {
+        return this.getTerminal(clientTerminalSn).get(ClientTerminal.CLIENT_STORE_SN).toString();
     }
     
     /**
