@@ -18,4 +18,6 @@ public abstract class Response {
 	
 	public static final String RESPONSE_CODE_PRECREATE_SUCCESS="PRECREATE_SUCCESS";
 
+	public static final String BIZ_RESPONSE_DATA_ERROR="BIZ_RESPONSE_DATA is null";
+
 }

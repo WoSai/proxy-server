@@ -1,5 +1,6 @@
 package com.wosai.upay.proxy.core.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.validator.internal.engine.MethodConstraintViolationImpl;
@@ -10,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
 
 import com.wosai.upay.proxy.core.exception.ParameterValidationException;
 import com.wosai.upay.proxy.core.exception.ProxyCoreException;
+import com.wosai.upay.proxy.core.model.Store;
+import com.wosai.upay.proxy.core.model.Terminal;
 
 @Service @Validated
 public class CoreProxyServiceImpl implements ProxyCoreService {
@@ -43,7 +46,9 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     public Map<String, Object> getStore(String storeId) throws ProxyCoreException {
     	try{
 
-    		return vendorApi.getStore(storeId);
+    		Map<String,Object> map=new HashMap<String,Object>();
+    		map.put(Store.ID, storeId);
+    		return vendorApi.getStore(map);
     	}catch(MethodConstraintViolationException mcve){
 			throw parseParameterValidationException(mcve);
     	}
@@ -96,7 +101,10 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     public Map<String, Object> getTerminal(String terminalId) throws ProxyCoreException {
     	try{
 
-    		return vendorApi.getTerminal(terminalId);
+
+    		Map<String,Object> request=new HashMap<String,Object>();
+    		request.put(Terminal.ID, terminalId);
+    		return vendorApi.getTerminal(request);
     	}catch(MethodConstraintViolationException mcve){
 			throw parseParameterValidationException(mcve);
     	}
@@ -112,7 +120,10 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
 	 * @return
 	 */
 	public ParameterValidationException parseParameterValidationException(MethodConstraintViolationException mcve){
-		return new ParameterValidationException(((MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next()).getMessage());
+		MethodConstraintViolationImpl mcvi=(MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next();
+		Map<Object,Object> invalidValue=(Map<Object,Object>)mcvi.getInvalidValue();
+		String key = String.valueOf(invalidValue.keySet().iterator().next());
+		return new ParameterValidationException(new StringBuilder("invalid ").append(key).append(".").toString());
 	}
 
 }

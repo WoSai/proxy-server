@@ -39,8 +39,8 @@ public class ResponseUtil {
         	if(data!=null){
         		return data;
         	}else{
-                throw new RemoteResponseBizError(String.valueOf(bizResponse.get(Response.ERROR_CODE)),
-                        String.valueOf(bizResponse.get(Response.ERROR_MESSAGE)));
+                throw new RemoteResponse500("",
+                		Response.BIZ_RESPONSE_DATA_ERROR);
         	}
         }else{
             throw new RemoteResponseBizError(String.valueOf(bizResponse.get(Response.ERROR_CODE)),

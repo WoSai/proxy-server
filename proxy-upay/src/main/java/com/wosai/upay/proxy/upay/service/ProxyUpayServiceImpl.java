@@ -379,6 +379,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 	 * @return
 	 */
 	public ParameterValidationException parseParameterValidationException(MethodConstraintViolationException mcve){
-		return new ParameterValidationException(((MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next()).getMessage());
+		MethodConstraintViolationImpl mcvi=(MethodConstraintViolationImpl)mcve.getConstraintViolations().iterator().next();
+		Map<Object,Object> invalidValue=(Map<Object,Object>)mcvi.getInvalidValue();
+		String key = String.valueOf(invalidValue.keySet().iterator().next());
+		return new ParameterValidationException(new StringBuilder("invalid ").append(key).append(".").toString());
 	}
+	
 }

@@ -74,10 +74,10 @@ public class VendorApiFacade {
 	}
 
 
-	public Map<String, Object> getStore(String storeId) {
-		Map<String,Object> map=new HashMap<String,Object>();
-		map.put(Store.ID, storeId);
-        return call2(getStoreApiUrl, map);
+	public Map<String, Object> getStore(@PropNotEmpty.List({
+								@PropNotEmpty(value=Store.ID,message="id不能为空")
+									})Map<String, Object> request) {
+        return call2(getStoreApiUrl, request);
 	}
     
 
@@ -100,10 +100,10 @@ public class VendorApiFacade {
 	}
 
 
-	public Map<String, Object> getTerminal(String terminalId) {
-
-		Map<String,Object> request=new HashMap<String,Object>();
-		request.put(Terminal.ID, terminalId);
+	public Map<String, Object> getTerminal(@PropNotEmpty.List({
+										        @PropNotEmpty(value=Terminal.ID, message="id不能为空")
+										      })
+											Map<String, Object> request) {
 		return call2(getTerminalApiUrl, request);
 	}
 
