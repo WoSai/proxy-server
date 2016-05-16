@@ -156,9 +156,10 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     @Override
     public Map<String, Object> createStore(Map<String, Object> request)
             throws ProxyAutoException {
+    	String clientMerchantSn=null;
 		try{
 			//获取获取本地商家信息
-	    	String clientMerchantSn=request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
+	    	clientMerchantSn=request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
 			String merchantId=theMap.getMerchantId(clientMerchantSn);
 			request.put(Store.MERCHANT_ID, merchantId);
 		}catch(Exception e){
@@ -178,11 +179,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			String storeId=result.get(Store.ID).toString();
 			String storeSn=result.get(Store.SN).toString();
 	    	String clientStoreSn=request.get(ClientOrderStore.CLIENT_SN.toString()).toString();
-	    	String clientMerchantSn=request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
         	if(storeId!=null){
             	theMap.saveStore(storeId, clientMerchantSn, clientStoreSn, storeSn);
         	}
         	
+        	result.put(ClientOrderStore.CLIENT_MERCHANT_SN.toString(), clientMerchantSn);
             return result;
         }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);
@@ -281,6 +282,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 				logger.debug("init secret faild.");
 				throw new ProxyUpayDependencyException("init secret faild.");
 			}
+			result.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
             return result;
         }catch(ProxyCoreSystemException ex) {
             throw new ProxyCoreDependencyException(ex.getMessage(), ex);

@@ -35,7 +35,13 @@ public class ResponseUtil {
         }
 
         if (!bizResultCode.contains("FAIL")) {
-            return (Map<String,Object>)bizResponse.get(Response.DATA);
+        	Map<String,Object> data = (Map<String,Object>)bizResponse.get(Response.DATA);
+        	if(data!=null){
+        		return data;
+        	}else{
+                throw new RemoteResponseBizError(String.valueOf(bizResponse.get(Response.ERROR_CODE)),
+                        String.valueOf(bizResponse.get(Response.ERROR_MESSAGE)));
+        	}
         }else{
             throw new RemoteResponseBizError(String.valueOf(bizResponse.get(Response.ERROR_CODE)),
                                              String.valueOf(bizResponse.get(Response.ERROR_MESSAGE)));

@@ -68,7 +68,7 @@ public class VendorApiFacade {
 
 
 	public Map<String, Object> updateStore(@PropNotEmpty.List({
-        						@PropNotEmpty(value=Store.CLIENT_SN,message="对接方门店号不能为空")
+        						@PropNotEmpty(value=Store.ID,message="id不能为空")
       							})Map<String, Object> request) {
         return call2(updateStoreApiUrl, request);
 	}
@@ -93,7 +93,7 @@ public class VendorApiFacade {
 
 
 	public Map<String, Object> updateTerminal(@PropNotEmpty.List({
-										        @PropNotEmpty(value=Terminal.CLIENT_SN, message="对接方终端号不能为空")
+										        @PropNotEmpty(value=Terminal.ID, message="id不能为空")
 										      })
 											Map<String, Object> request) {
 		return call2(updateTerminalApiUrl, request);
