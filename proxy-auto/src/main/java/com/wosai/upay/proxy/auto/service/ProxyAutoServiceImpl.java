@@ -159,7 +159,7 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	String clientMerchantSn=null;
 		try{
 			//获取获取本地商家信息
-	    	clientMerchantSn=request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString()).toString();
+	    	clientMerchantSn=(String)request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString());
 			String merchantId=theMap.getMerchantId(clientMerchantSn);
 			request.put(Store.MERCHANT_ID, merchantId);
 		}catch(Exception e){
@@ -481,14 +481,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	switch (advice) {
 		case Advice.CREATE_TERMINAL:
 
-			try{
-				//创建终端
-				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				terminal=this.createTerminal(clientTerminal);
-			}catch(Exception e){
-				logger.debug("create terminal faild.");
-				throw new ProxyCoreDependencyException("create terminal faild.", e);
-			}
+			//创建终端
+			clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
+			terminal=this.createTerminal(clientTerminal);
 			logger.debug(" create terminal success.");
 			
 			//获取返回结果的终端标识
@@ -497,14 +492,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			
 		case Advice.MOVE_TERMINAL:
 
-			try{
-				//更新终端
-				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				this.moveTerminal(clientTerminal);
-			}catch(Exception e){
-				logger.debug("update terminal faild.");
-				throw new ProxyCoreDependencyException("update terminal faild.", e);
-			}
+			//更新终端
+			clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
+			this.moveTerminal(clientTerminal);
 			logger.debug(" update terminal success.");
 			
 			//获取本地的sn码
@@ -512,21 +502,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			break;
 			
 		case Advice.CREATE_STORE_AND_TERMINAL:
-			try{
-				this.createStore(clientStore);
-			}catch(Exception e){
-				logger.debug("create store faild.");
-				throw new ProxyCoreDependencyException("create store faild.", e);
-			}
+			this.createStore(clientStore);
 
-			try{
-				//创建终端
-				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				terminal=this.createTerminal(clientTerminal);
-			}catch(Exception e){
-				logger.debug("create terminal faild.");
-				throw new ProxyCoreDependencyException("create terminal faild.", e);
-			}
+			//创建终端
+			clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
+			terminal=this.createTerminal(clientTerminal);
 			logger.debug(" create terminal success.");
 			
 			//获取服务端sn码
@@ -534,22 +514,12 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 			break;
 			
 		case Advice.CREATE_STORE_AND_MOVE_TERMINAL:
-			try{
-				this.createStore(clientStore);
-			}catch(Exception e){
-				logger.debug("create store faild.");
-				throw new ProxyCoreDependencyException("create store faild.", e);
-			}
+			this.createStore(clientStore);
 			logger.debug("create store success.");
 			
-			try{
-				//移机
-				clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
-				this.moveTerminal(clientTerminal);
-			}catch(Exception e){
-				logger.debug("update terminal faild.");
-				throw new ProxyCoreDependencyException("update terminal faild.", e);
-			}
+			//移机
+			clientTerminal.put(ClientOrderTerminal.CLIENT_STORE_SN.toString(), clientStoreSn);
+			this.moveTerminal(clientTerminal);
 			logger.debug(" update terminal success.");
 			
 			//获取本地的sn码

@@ -54,12 +54,6 @@ public class VendorApiFacade {
 						        @PropNotEmpty(value=Store.CLIENT_SN,message="对接方门店号不能为空"),
 						        @PropNotEmpty(value=Store.NAME,message="门店名称不能为空"),
 						        @PropNotEmpty(value=Store.MERCHANT_ID,message="商户标识不能为空"),
-						        @PropNotEmpty(value=Store.PROVINCE,message="省份不能为空"),
-						        @PropNotEmpty(value=Store.CITY,message="城市不能为空"),
-						        @PropNotEmpty(value=Store.DISTRICT,message="区域不能为空"),
-						        @PropNotEmpty(value=Store.STREET_ADDRESS,message="街道不能为空"),
-						        @PropNotEmpty(value=Store.CONTACT_NAME,message="联系人姓名不能为空"),
-						        @PropNotEmpty(value=Store.CONTACT_CELLPHONE,message="联系移动电话号码不能为空")
 						      })
                               Map<String, Object> request) throws VendorApiException {
         
