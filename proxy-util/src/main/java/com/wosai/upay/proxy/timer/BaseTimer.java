@@ -1,4 +1,4 @@
-package com.wosai.upay.proxy.auto.timer;
+package com.wosai.upay.proxy.timer;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BaseTimer implements InitializingBean {
+public class BaseTimer implements InitializingBean, DisposableBean {
 	
 	private Timer timer=new Timer(true);
 	
@@ -71,6 +72,11 @@ public class BaseTimer implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		this.init();
 		
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		timer.purge();
 	}
 
 }

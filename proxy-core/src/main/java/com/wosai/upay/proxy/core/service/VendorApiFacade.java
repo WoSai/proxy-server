@@ -52,7 +52,6 @@ public class VendorApiFacade {
 
     public Map<String,Object> createStore(@PropNotEmpty.List({
 						        @PropNotEmpty(value=Store.CLIENT_SN,message="对接方门店号不能为空"),
-						        @PropNotEmpty(value=Store.NAME,message="门店名称不能为空"),
 						        @PropNotEmpty(value=Store.MERCHANT_ID,message="商户标识不能为空"),
 						      })
                               Map<String, Object> request) throws VendorApiException {
@@ -77,7 +76,6 @@ public class VendorApiFacade {
 
     public Map<String,Object> createTerminal(@PropNotEmpty.List({
 										        @PropNotEmpty(value=Terminal.CLIENT_SN, message="对接方终端号不能为空"),
-										        @PropNotEmpty(value=Terminal.NAME, message="终端名称不能为空"),
 										        @PropNotEmpty(value=Terminal.STORE_SN, message="门店标识不能为空")
 										      })
                               				Map<String, Object> request) throws VendorApiException {

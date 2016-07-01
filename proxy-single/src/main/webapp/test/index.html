@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <title>proxy-upay-test</title>
+    <meta name="keywords" content="proxy-upay-test">
+    <meta name="description" content="proxy-upay-test">
+    
+	<link href="../css/css.css" rel="stylesheet">
+	
+  </head>
+  <body ng-app="app" ng-controller="load" ng-data-http="result get proxy-upay/api/test">
+		
+	<div class="jm-form" ng-repeat="request in result.data">
+		<ul>
+			<li>{{$index+1}}.{{request.title}}</li>
+			<li>
+				<input ng-model="request.action" placeholder="请输入url地址"/>
+				<select ng-model="request.method">
+					<option>post</option>
+					<option>get</option>
+				</select>
+			</li>
+			<li>
+			<textarea ng-model="request.param" placeholder="请输入json字符串"></textarea>
+			</li>
+			<li>
+				<span ng-bind="request.state"></span>
+				<button ng-click="submit(request)">提交</button>
+			</li>
+		</ul>
+		<ul>
+			<li>{{request.response}}</li>
+		</ul>
+	</div>
+		
+	<script type="text/javascript" src="../js/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../js/angular/angular-ui-router.min.js"></script>
+	<script type="text/javascript" src="../js/common/angular-base.js"></script>
+	<script type="text/javascript">
+		var app = angular.module("app");
+		app.controller("load", function($scope,$http) {
+			$scope.$on("result.loaded",function(){
+				var data=$scope.result.data;
+				for(var i=0;i<data.length;i++){
+					data[i].param=JSON.stringify(data[i].param);
+				}
+			});
+			
+			$scope.submit = function(request) {
+				request.state="doing";
+				var callBack=function(json) {
+					request.response=json;
+					request.state="done";
+				};
+				if(request.method=="post"){
+					$http.post(request.action, request.param).success(callBack).error(callBack);
+				}else{
+					$http.get(request.action, request.param).success(callBack).error(callBack);
+				}
+			};
+		});
+	</script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-package com.wosai.upay.proxy.upay.service;
+package com.wosai.upay.proxy.single.service;
 
 import java.util.Calendar;
 import java.util.concurrent.Executors;

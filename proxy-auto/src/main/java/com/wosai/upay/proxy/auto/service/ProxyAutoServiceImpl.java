@@ -472,6 +472,11 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	String clientTerminalSn=(String)clientTerminal.get(ClientOrderTerminal.CLIENT_SN.toString());
     	String clientMerchantSn=(String)clientStore.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString());
     	
+    	//如果客户端没有传，默认取第一个
+    	if(clientMerchantSn==null){
+    		clientMerchantSn = theMap.getFirstClientMerchantSn();
+    	}
+    	
     	String terminalSn=null;
     	
     	//转成服务端接口所需参数

@@ -314,11 +314,32 @@ public class ProxyObjectMap {
     /**
      * 根据store的client_sn从映射表中查询store的id
      * @param clientMerchantSn
-     * @param clientTerminalSn
      * @return
      */
     public String getMerchantId(String clientMerchantSn) {
         return this.getMerchant(clientMerchantSn).get(ClientMerchant.ID).toString();
+    }
+    
+    /**
+     * 根据store的client_sn从映射表中查询store的id
+     * @param clientMerchantSn
+     * @return
+     */
+    public String getFirstClientMerchantSn() {
+        return this.getFirstMerchant().get(ClientMerchant.CLIENT_MERCHANT_SN).toString();
+    }
+    
+    /**
+     * 获取商户
+     * @param clientTerminalSn
+     * @return
+     */
+    @Cacheable("get_first_merchant")
+    public Map<String,Object> getFirstMerchant() {
+    	//组织商户查询条件
+    	Criteria merchantCriteria=Criteria.where(ClientMerchant.CLIENT_MERCHANT_SN).like("%%");
+    	Map<String,Object> merchant=merchantMapDao.filter(merchantCriteria).fetchOne();
+        return merchant;
     }
     
     /**
@@ -330,7 +351,7 @@ public class ProxyObjectMap {
     public Map<String,Object> getMerchant(String clientMerchantSn) {
     	//如果没有传递merchantSn，查询第一条
     	if(clientMerchantSn==null){
-    		clientMerchantSn="";
+    		return this.getFirstMerchant();
 		}
     	//组织商户查询条件
     	Criteria merchantCriteria=Criteria.where(ClientMerchant.CLIENT_MERCHANT_SN).is(clientMerchantSn);

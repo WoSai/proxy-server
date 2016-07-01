@@ -42,6 +42,9 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     private UpayApiFacade upayApi;
     
     @Autowired
+    private CachedSnMap snMap;
+    
+    @Autowired
     private CachedTerminalKeyStore keyStore;
     
     private static final Map<String,String> secretMap=new HashMap<String,String>();
@@ -68,6 +71,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	request.put(Order.CLIENT_SN, snMap.generateMappingClientSn(client_sn));
+        	
 			Map<String, Object> bizResponse = upayApi.pay(terminalSn,
 			                                              terminalKey,
 			                                              request);
@@ -176,6 +183,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalKey = this.getKey(terminalSn,request);
 
         try {
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	request.put(Order.CLIENT_SN, snMap.generateMappingClientSn(client_sn));
+        	
             Map<String, Object> bizResponse = upayApi.precreate(terminalSn,
                                                                 terminalKey,
                                                                 request);
@@ -226,6 +237,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalKey = this.getKey(terminalSn,request);
 
         try {
+        	
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	if(client_sn!=null){
+            	request.put(Order.CLIENT_SN, snMap.getMappingClientSn(client_sn));
+        	}
+        	
             Map<String, Object> bizResponse = upayApi.refund(terminalSn,
                                                              terminalKey,
                                                              request);
@@ -256,6 +274,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
+        	
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	if(client_sn!=null){
+            	request.put(Order.CLIENT_SN, snMap.getMappingClientSn(client_sn));
+        	}
+        	
             Map<String, Object> bizResponse = upayApi.query(terminalSn, terminalKey, request);
             return bizResponse;
 
@@ -284,6 +309,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
+        	
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	if(client_sn!=null){
+            	request.put(Order.CLIENT_SN, snMap.getMappingClientSn(client_sn));
+        	}
+        	
             Map<String, Object> bizResponse = upayApi.revoke(terminalSn,
                                                              terminalKey,
                                                              request);
@@ -315,6 +347,13 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
         String terminalSn = (String)request.get(Order.TERMINAL_SN);
         String terminalKey = this.getKey(terminalSn,request);
         try {
+        	
+        	//转换client_sn本地映射，解决支付失败client_sn已存在的bug
+        	String client_sn = (String)request.get(Order.CLIENT_SN);
+        	if(client_sn!=null){
+            	request.put(Order.CLIENT_SN, snMap.getMappingClientSn(client_sn));
+        	}
+        	
             Map<String, Object> bizResponse = upayApi.cancel(terminalSn,
                                                              terminalKey,
                                                              request);
@@ -383,6 +422,14 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 		Map<Object,Object> invalidValue=(Map<Object,Object>)mcvi.getConstraintDescriptor().getAttributes();
 		String key = String.valueOf(invalidValue.get("value"));
 		return new ParameterValidationException(new StringBuilder("invalid ").append(key).append(".").toString());
+	}
+
+	public void setSnMap(CachedSnMap snMap) {
+		this.snMap = snMap;
+	}
+
+	public void setKeyStore(CachedTerminalKeyStore keyStore) {
+		this.keyStore = keyStore;
 	}
 	
 }

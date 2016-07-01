@@ -4,14 +4,43 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
          http://www.springframework.org/schema/beans/spring-beans.xsd
          http://www.springframework.org/schema/cache
-         http://www.springframework.org/schema/cache/spring-cache.xsd">
+         http://www.springframework.org/schema/cache/spring-cache.xsd
+		 http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <!-- enables scanning for @Cacheable annotation -->
-    <cache:annotation-driven/>
+	<context:property-placeholder location="classpath:spring/flavor-${shouqianba.flavor:default}.properties"/>
+    
+    <cache:annotation-driven />
+
+	<bean id="redisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:hostName="${redis.host:localhost}" 
+		p:port="${redis.port:6379}" />
+
+	<bean id="stringRedisSerializer" class="com.wosai.upay.proxy.util.StringRedisSerializer" />
+
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="redisConnectionFactory" />
+	</bean>
+
+	<bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager"
+		p:defaultExpiration="${redis.defaultExpiration:86400000}">
+		<constructor-arg ref="redisTemplate" />
+		<property name="expires">
+			<map>
+				<entry key="order_client_sn" value="3600000" />
+				<entry key="terminal_key" value="60000" />
+			</map>
+		</property>
+	</bean>
+   
+	<!-- 
 
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
         <property name="cacheManager" ref="ehcache"/>
@@ -20,6 +49,6 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml"/>
     </bean>
-
-
+    
+     -->
 </beans>

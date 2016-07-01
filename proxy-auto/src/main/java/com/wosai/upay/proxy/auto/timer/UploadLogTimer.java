@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wosai.upay.proxy.auto.service.ProxyAutoService;
+import com.wosai.upay.proxy.timer.BaseTimerTask;
+import com.wosai.upay.proxy.timer.IBaseTimerTask;
 
 /**
  * 定期上传日志

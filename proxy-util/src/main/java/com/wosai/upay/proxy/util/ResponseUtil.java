@@ -2,15 +2,21 @@ package com.wosai.upay.proxy.util;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wosai.upay.proxy.exception.RemoteResponse400;
 import com.wosai.upay.proxy.exception.RemoteResponse500;
 import com.wosai.upay.proxy.exception.RemoteResponseBizError;
 import com.wosai.upay.proxy.model.Response;
 
 public class ResponseUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ResponseUtil.class); 
     @SuppressWarnings("unchecked")
     public static Map<String,Object> resolve1(Map<String,Object> result) throws RemoteResponse400, RemoteResponse500 {
-        if (Response.RESULT_CODE_CLIENT_ERROR.equals(result.get(Response.RESULT_CODE))) {
+    	logger.debug(new StringBuilder("call api result:").append(""+result).toString());
+    	
+    	if (Response.RESULT_CODE_CLIENT_ERROR.equals(result.get(Response.RESULT_CODE))) {
             throw new RemoteResponse400(String.valueOf(result.get(Response.ERROR_CODE)),
                                         (String.valueOf(result.get(Response.ERROR_MESSAGE))));
         } else if (Response.RESULT_CODE_SYSTEM_ERROR.equals(result.get(Response.RESULT_CODE))){
@@ -24,7 +30,9 @@ public class ResponseUtil {
     
     @SuppressWarnings("unchecked")
 	public static Map<String,Object> resolve2(Map<String,Object> result) throws RemoteResponse400, RemoteResponse500, RemoteResponseBizError {
-        Map<String, Object> bizResponse = (Map<String, Object>)resolve1(result);
+    	logger.debug(new StringBuilder("call api result:").append(""+result).toString());
+
+    	Map<String, Object> bizResponse = (Map<String, Object>)resolve1(result);
 
         if (bizResponse == null) {
             return null;

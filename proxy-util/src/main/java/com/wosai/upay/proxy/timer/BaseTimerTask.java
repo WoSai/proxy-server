@@ -1,4 +1,4 @@
-package com.wosai.upay.proxy.auto.timer;
+package com.wosai.upay.proxy.timer;
 
 import java.util.TimerTask;
 
