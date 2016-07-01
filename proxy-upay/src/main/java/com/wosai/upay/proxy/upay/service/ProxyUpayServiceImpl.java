@@ -46,12 +46,6 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
     
     @Autowired
     private CachedTerminalKeyStore keyStore;
-    
-    private static final Map<String,String> secretMap=new HashMap<String,String>();
-    private static final Map<String,String> dateMap=new HashMap<String,String>();
-    
-    
-    private static final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public void init(String terminalSn, String secret)
