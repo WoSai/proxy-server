@@ -23,8 +23,6 @@
 		p:hostName="${redis.host:localhost}" 
 		p:port="${redis.port:6379}" />
 
-	<bean id="stringRedisSerializer" class="com.wosai.upay.proxy.util.StringRedisSerializer" />
-
 	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
 		<property name="connectionFactory" ref="redisConnectionFactory" />
 	</bean>
