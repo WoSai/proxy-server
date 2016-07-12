@@ -160,7 +160,15 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
 		try{
 			//获取获取本地商家信息
 	    	clientMerchantSn=(String)request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString());
-			String merchantId=theMap.getMerchantId(clientMerchantSn);
+	    	//如果客户端没有传，默认取第一个
+	    	if(clientMerchantSn==null){
+	    		clientMerchantSn = theMap.getFirstClientMerchantSn();
+		    	if(clientMerchantSn==null){
+					throw new ParameterValidationException("database init error,invalid client_merchant_sn");
+		    	}
+	    	}
+	    	
+	    	String merchantId=theMap.getMerchantId(clientMerchantSn);
 			request.put(Store.MERCHANT_ID, merchantId);
 		}catch(Exception e){
 			throw new ParameterValidationException("invalid client_merchant_sn");
@@ -205,6 +213,13 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	try{
 			//获取获取本地商家信息
     		String clientMerchantSn=(String)request.get(ClientOrderStore.CLIENT_MERCHANT_SN.toString());
+    		//如果客户端没有传，默认取第一个
+	    	if(clientMerchantSn==null){
+	    		clientMerchantSn = theMap.getFirstClientMerchantSn();
+		    	if(clientMerchantSn==null){
+					throw new ParameterValidationException("database init error,invalid client_merchant_sn");
+		    	}
+	    	}
     		//更新时,merchantId可以为空
     		if(clientMerchantSn!=null){
     			String merchantId=theMap.getMerchantId(clientMerchantSn);
@@ -475,6 +490,9 @@ public class ProxyAutoServiceImpl implements ProxyAutoService {
     	//如果客户端没有传，默认取第一个
     	if(clientMerchantSn==null){
     		clientMerchantSn = theMap.getFirstClientMerchantSn();
+	    	if(clientMerchantSn==null){
+				throw new ParameterValidationException("database init error,invalid client_merchant_sn");
+	    	}
     	}
     	
     	String terminalSn=null;
