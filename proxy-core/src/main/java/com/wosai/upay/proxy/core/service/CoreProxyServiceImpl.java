@@ -24,6 +24,9 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     public Map<String, Object> createStore(Map<String, Object> request)
 
                                       throws ProxyCoreException {
+    	if(request.get(Store.NAME)==null){
+    		request.put(Store.NAME, request.get(Store.CLIENT_SN));
+    	}
     	try{
     		return vendorApi.createStore(request);
     	}catch(MethodConstraintViolationException mcve){
@@ -58,6 +61,9 @@ public class CoreProxyServiceImpl implements ProxyCoreService {
     public Map<String, Object> createTerminal(Map<String, Object> request)
             throws ProxyCoreException {
     	try{
+        	if(request.get(Terminal.NAME)==null){
+        		request.put(Terminal.NAME, request.get(Terminal.CLIENT_SN));
+        	}
     		return vendorApi.createTerminal(request);
     	}catch(MethodConstraintViolationException mcve){
 			throw parseParameterValidationException(mcve);
