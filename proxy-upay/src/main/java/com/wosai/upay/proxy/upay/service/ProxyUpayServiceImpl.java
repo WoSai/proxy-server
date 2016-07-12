@@ -72,7 +72,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
 			Map<String, Object> bizResponse = upayApi.pay(terminalSn,
 			                                              terminalKey,
 			                                              request);
-
+			//成功后固化client_sn
+			if(bizResponse.get(Response.RESULT_CODE).toString().indexOf(Response.RESPONSE_CODE_SUCEESS)>0){
+				snMap.fixedMappingClientSn(client_sn);
+			}
 			return bizResponse;
 			
 		}  catch (IOException e) {
@@ -184,6 +187,10 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
             Map<String, Object> bizResponse = upayApi.precreate(terminalSn,
                                                                 terminalKey,
                                                                 request);
+            //成功后固化client_sn
+			if(bizResponse.get(Response.RESULT_CODE).equals(Response.RESPONSE_CODE_SUCEESS)){
+				snMap.fixedMappingClientSn(client_sn);
+			}
             return bizResponse;
 
 		} catch (IOException e) {

@@ -15,6 +15,16 @@ public class ClientSnTimerStore {
 	public Long getCurrentTimerNum(String client_sn){
 		return 0l;
 	}
+
+	/**
+	 * 生成计时器中成功的client_sn的版本
+	 * @param client_sn
+	 * @return
+	 */
+	@Cacheable(value="order_client_sn",key="'fixed'+#client_sn")
+	public Long getFixedTimerNum(String client_sn){
+		return 0l;
+	}
 	
 	
 }

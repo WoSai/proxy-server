@@ -22,6 +22,17 @@ public class ClientSnTimerGenerate {
 		return index;
 	}
 
+	/**
+	 * 订单支付成功后固话计时器中client_sn
+	 * @param client_sn
+	 * @return
+	 */
+	@CachePut(value="order_client_sn",key="'fixed'+#client_sn")
+	public Long fixedNextTimerNum(String client_sn){
+		Long index = clientSnTimerStore.getCurrentTimerNum(client_sn);
+		return index;
+	}
+
 	public void setClientSnTimerStore(ClientSnTimerStore clientSnTimerStore) {
 		this.clientSnTimerStore = clientSnTimerStore;
 	}
