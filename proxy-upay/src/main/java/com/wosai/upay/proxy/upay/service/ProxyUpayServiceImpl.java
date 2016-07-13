@@ -188,7 +188,7 @@ public class ProxyUpayServiceImpl implements ProxyUpayService {
                                                                 terminalKey,
                                                                 request);
             //成功后固化client_sn
-			if(bizResponse.get(Response.RESULT_CODE).equals(Response.RESPONSE_CODE_SUCEESS)){
+			if(bizResponse.get(Response.RESULT_CODE).toString().indexOf(Response.RESPONSE_CODE_SUCEESS)>0){
 				snMap.fixedMappingClientSn(client_sn);
 			}
             return bizResponse;
